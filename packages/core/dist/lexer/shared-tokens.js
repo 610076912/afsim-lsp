@@ -79,10 +79,11 @@ export const CharLiteral = createToken({
     name: "CharLiteral",
     pattern: /'(?:[^'\\]|\\.)?'/,
 });
-// --- Identifier (shared base — used as fallback in both modes) ---
-// In WSF_MODE this is WsfIdentifier; in SCRIPT_MODE this is ScriptIdentifier
-// The base pattern is used for mode-specific variants
-export const IDENTIFIER_PATTERN = /[A-Za-z_][A-Za-z0-9_]*/;
+// --- Identifier pattern is NOT shared between WSF and Script modes ---
+// - WSF identifiers use: /[a-zA-Z_][a-zA-Z0-9_\-\/\.]*/ (allows -, /, . for paths/versions)
+//   → defined as WsfIdentifier in wsf-tokens.ts
+// - Script identifiers use: /[a-zA-Z_][a-zA-Z0-9_]*/ (strict C-like)
+//   → defined as ScriptIdentifier in script-tokens.ts
 // Collect all shared tokens for convenient re-use
 export const sharedTokens = [
     BlockComment,

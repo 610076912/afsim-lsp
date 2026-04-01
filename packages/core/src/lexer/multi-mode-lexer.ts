@@ -73,7 +73,7 @@ import {
   ScriptIdentifier,
 } from "./script-tokens.js";
 import {
-  ScriptBlockEntry, ExecuteScriptEntry, ScriptHeuristicEscape,
+  ScriptFuncEntry, ScriptStmtEntry, ExecuteScriptEntry,
 } from "./custom-matchers.js";
 
 // ============================================================================
@@ -196,7 +196,8 @@ const WSF_MODE_TOKENS: TokenType[] = [
   OnRefuel, OnReserve, OnNewExecute, OnNewFail,
   Precondition, NextState, ScriptVariables,
   ExecuteScriptEntry,
-  ScriptBlockEntry,
+  ScriptFuncEntry,   // Function definitions → SCRIPT_FUNC_MODE (must be before ScriptStmtEntry)
+  ScriptStmtEntry,   // Statement blocks → SCRIPT_MODE (default fallback)
 
   // --- Block open keywords (strictly longer-first ordering) ---
   PlatformType, Platform,
@@ -288,12 +289,10 @@ const SCRIPT_MODE_TOKENS: TokenType[] = [
   EndOnInit, EndOnBingo, EndOnEmpty,
   EndOnRefuel, EndOnReserve,
   EndExecute,
+  EndScript,  // Also needed for script blocks with custom types (ScriptStmtEntry fallback)
 
   ...scriptOperatorsAndPunctuation,
   ...scriptKeywords,
-
-  // Heuristic escape (last resort — before Identifier)
-  ScriptHeuristicEscape,
 
   // Script Identifier (fallback — MUST be LAST)
   ScriptIdentifier,
@@ -311,9 +310,6 @@ const SCRIPT_FUNC_MODE_TOKENS: TokenType[] = [
 
   ...scriptOperatorsAndPunctuation,
   ...scriptKeywords,
-
-  // Heuristic escape (last resort — before Identifier)
-  ScriptHeuristicEscape,
 
   // Script Identifier (fallback — MUST be LAST)
   ScriptIdentifier,

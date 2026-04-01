@@ -1,6 +1,6 @@
 import { IToken } from "chevrotain";
 export interface TokenSlice {
-    /** The script entry token (e.g., OnInitialize, ScriptBlockEntry) */
+    /** The script entry token (e.g., OnInitialize, ScriptFuncEntry, ScriptStmtEntry) */
     entryToken: IToken;
     /** The script exit token (e.g., EndOnInitialize, EndScript) — may be null if missing */
     exitToken: IToken | null;
@@ -8,21 +8,9 @@ export interface TokenSlice {
     bodyTokens: IToken[];
     /** Whether this is a function-definition block (script...end_script) */
     isFuncBlock: boolean;
-    /** The WSF context identifier for injected context awareness */
-    injectedContextType: string | null;
-    /** Whether the block was terminated by heuristic escape (missing end_*) */
-    escapedByHeuristic: boolean;
+    /** WSF context tag from the enclosing block's TokenType.name (e.g., "Platform", "Sensor") */
+    contextTag: string | null;
 }
-/**
- * Extracts all script token slices from a flat token array.
- * Also returns a placeholder map: entryToken → index in slices array.
- *
- * The slicer walks the token stream and:
- * 1. Detects script entry tokens (push_mode)
- * 2. Collects body tokens until the matching exit token (pop_mode)
- * 3. Handles heuristic escape (missing end_*)
- * 4. Returns slices and a "cleaned" WSF token stream with ScriptBodyPlaceholder
- */
 export interface SliceResult {
     /** All extracted script slices */
     slices: TokenSlice[];
@@ -33,5 +21,15 @@ export interface SliceResult {
      */
     wsfTokens: IToken[];
 }
+/**
+ * Extracts all script token slices from a flat token array.
+ *
+ * Key feature: Uses a context stack to precisely track the enclosing
+ * WSF block context. When a script entry token is encountered, the
+ * stack top contains the exact parent context (e.g., "Platform", "Sensor").
+ *
+ * This avoids the pitfalls of backward iteration on a flat token array,
+ * which cannot correctly handle nested structures.
+ */
 export declare function sliceTokens(allTokens: IToken[]): SliceResult;
 //# sourceMappingURL=token-slicer.d.ts.map

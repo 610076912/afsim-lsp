@@ -110,7 +110,7 @@ export function computeCompletions(
 interface ScriptContextInfo {
   slice: TokenSlice;
   entry: ScriptCstEntry;
-  injectedContextType: string | null;
+  contextTag: string | null;
 }
 
 function findScriptContext(
@@ -130,7 +130,7 @@ function findScriptContext(
         return {
           slice,
           entry,
-          injectedContextType: slice.injectedContextType,
+          contextTag: slice.contextTag,
         };
       }
     }
@@ -315,7 +315,7 @@ function computeScriptCompletions(ctx: ScriptContextInfo): CompletionItem[] {
   }
 
   // System variables (context-aware)
-  const contextType = mapInjectedContextToType(ctx.injectedContextType);
+  const contextType = mapContextTagToType(ctx.contextTag);
   const sysVars = getSystemVariablesForContext(contextType);
   for (const v of sysVars) {
     items.push({
@@ -419,12 +419,12 @@ function findTokenBefore(offset: number, allTokens: IToken[]): IToken | null {
   return result;
 }
 
-function mapInjectedContextToType(injectedContextType: string | null): string | undefined {
-  if (!injectedContextType) return undefined;
-  // Map token type names (from inferContextType in token-slicer.ts)
+function mapContextTagToType(contextTag: string | null): string | undefined {
+  if (!contextTag) return undefined;
+  // Map token type names (from contextTag in token-slicer.ts)
   // and WSF struct names to script context keys
   const map: Record<string, string> = {
-    // Token type names returned by the slicer
+    // Token type names returned by the slicer (TokenType.name)
     Sensor: "sensor",
     Processor: "processor",
     Comm: "comm",
@@ -436,12 +436,10 @@ function mapInjectedContextToType(injectedContextType: string | null): string | 
     Fuel: "fuel",
     Transmitter: "comm",
     Receiver: "comm",
-    // WSF struct names (in case the slicer is updated)
-    WSF_PLATFORM: "platform",
-    WSF_SENSOR: "sensor",
-    WSF_SCRIPT_PROCESSOR: "processor",
-    WSF_TRACK_PROCESSOR: "track_processor",
-    WSF_COMM_TRANSCEIVER: "comm",
+    // Additional block contexts
+    Behavior: "behavior",
+    AdvancedBehavior: "behavior",
+    State: "state",
   };
-  return map[injectedContextType];
+  return map[contextTag];
 }

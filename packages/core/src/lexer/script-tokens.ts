@@ -1,5 +1,4 @@
 import { createToken } from "chevrotain";
-import { IDENTIFIER_PATTERN } from "./shared-tokens.js";
 
 // ============================================================================
 // SCRIPT_MODE / SCRIPT_FUNC_MODE tokens
@@ -217,5 +216,6 @@ export const PreprocessorVar = createToken({
 
 export const ScriptIdentifier = createToken({
   name: "ScriptIdentifier",
-  pattern: IDENTIFIER_PATTERN,
+  // Strict C-like: only alphanumeric and underscore
+  pattern: /[a-zA-Z_][a-zA-Z0-9_]*/,
 });

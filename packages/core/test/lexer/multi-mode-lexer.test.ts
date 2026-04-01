@@ -27,7 +27,7 @@ import {
   EndOnInitialize, EndOnUpdate, EndExecute, EndScript,
 } from "../../src/lexer/script-tokens.js";
 import {
-  ScriptBlockEntry, ExecuteScriptEntry,
+  ScriptFuncEntry, ExecuteScriptEntry,
 } from "../../src/lexer/custom-matchers.js";
 
 let lexer: Lexer;
@@ -333,14 +333,14 @@ end_on_initialize`;
 // ============================================================================
 
 describe("Custom Matchers — script block entry", () => {
-  it("should push to SCRIPT_FUNC_MODE on 'script' keyword", () => {
+  it("should push to SCRIPT_FUNC_MODE on 'script' keyword with function signature", () => {
     const input = `script
   int myFunc(int x) {
     return x + 1;
   }
 end_script`;
     const names = tokenNames(input);
-    expect(names[0]).toBe("ScriptBlockEntry");
+    expect(names[0]).toBe("ScriptFuncEntry");
     expect(names).toContain("ScriptReturn");
     expect(names[names.length - 1]).toBe("EndScript");
   });
@@ -351,7 +351,7 @@ end_script`;
 end_script
 platform MyPlat end_platform`;
     const names = tokenNames(input);
-    expect(names[0]).toBe("ScriptBlockEntry");
+    expect(names[0]).toBe("ScriptFuncEntry");
     expect(names).toContain("EndScript");
     expect(names).toContain("Platform");
     expect(names).toContain("EndPlatform");

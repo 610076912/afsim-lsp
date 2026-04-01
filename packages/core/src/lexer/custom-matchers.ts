@@ -1,14 +1,14 @@
-import { createToken, ICustomPattern } from "chevrotain";
-import { IDENTIFIER_PATTERN, WhiteSpace } from "./shared-tokens.js";
-import { WSF_END_KEYWORDS, WSF_TOP_LEVEL_KEYWORDS } from "./wsf-tokens.js";
+import { createToken } from "chevrotain";
+import { WSF_END_KEYWORDS, WSF_TOP_LEVEL_KEYWORDS, ScriptEntryCategory } from "./wsf-tokens.js";
 
 // ============================================================================
 // Custom Token Matchers for `script` and `execute` disambiguation
 //
 // Problem:
 //   `script` can mean:
-//     (a) WSF block → `script ... end_script` (contains function defs, push SCRIPT_FUNC_MODE)
-//     (b) Part of `end_script`, `script_variables`, etc. — handled by longer_alt
+//     (a) Function definition block → `script void foo() { ... } end_script` (SCRIPT_FUNC_MODE)
+//     (b) Statement block → `script { ... } end_script` (SCRIPT_MODE)
+//     (c) Part of `end_script`, `script_variables`, etc. — handled by longer_alt
 //
 //   `execute` can mean:
 //     (a) Script entry → `execute <ScriptBlock>* end_execute` (push SCRIPT_MODE)
@@ -37,8 +37,8 @@ function peekNextWord(text: string, afterOffset: number): PeekResult | null {
   }
   if (i >= len) return null;
 
-  // Read identifier-like word
-  const match = IDENTIFIER_PATTERN.exec(text.substring(i));
+  // Read identifier-like word (strict C-like pattern for peek)
+  const match = /[a-zA-Z_][a-zA-Z0-9_]*/.exec(text.substring(i));
   if (match && match.index === 0) {
     return { word: match[0], endOffset: i + match[0].length };
   }
@@ -46,48 +46,140 @@ function peekNextWord(text: string, afterOffset: number): PeekResult | null {
 }
 
 // ---------------------------------------------------------------------------
-// Custom matcher for `script` keyword as a script function block opener
-//   Matches `script` only when it should push to SCRIPT_FUNC_MODE
-//   i.e., `script` followed by script code (not part of another compound token)
+// Helper: create RegExpExecArray result
 // ---------------------------------------------------------------------------
 
-function matchScriptBlockEntry(
-  text: string,
-  startOffset: number
-): RegExpExecArray | null {
-  // Check for 'script' at word boundary
-  const remaining = text.substring(startOffset);
-  const m = /^script(?![A-Za-z0-9_])/.exec(remaining);
-  if (!m) return null;
-
-  // Peek at next word to disambiguate
-  const afterScript = startOffset + 6; // length of "script"
-  const nextWord = peekNextWord(text, afterScript);
-
-  // If next word is a known identifier for `script <string>` pattern in WSF commands
-  // (e.g., script_variables → handled by longer_alt, not this matcher)
-  // But if we get here, `script_variables` would have been matched by its own token first
-  // So here we check if it's a plain `script` block entry for function definitions
-  // The pattern in wsf.ag: `script <ScriptFunctionBlock>* end_script`
-  // vs WSF usage of `script <ScriptBlock>* end_script` which also pushes to script mode
-  // Both cases should push to script mode, so we accept this match
-
-  // However we need to check it's not part of a compound keyword that should
-  // be handled differently (like end_script which starts with 'end_')
-  // The lexer ordering handles that — end_script comes before this token
-
-  const result = [m[0]] as RegExpExecArray;
+function makeMatchResult(matchedText: string, startOffset: number, text: string): RegExpExecArray {
+  const result = [matchedText] as RegExpExecArray;
   result.index = startOffset;
   result.input = text;
   return result;
 }
 
-export const ScriptBlockEntry = createToken({
-  name: "ScriptBlockEntry",
-  pattern: matchScriptBlockEntry,
+// ---------------------------------------------------------------------------
+// Script Entry Tokens — two modes:
+//   1. ScriptFuncEntry: function definitions (script void foo() {...})
+//      → push SCRIPT_FUNC_MODE
+//   2. ScriptStmtEntry: statement blocks (script {...})
+//      → push SCRIPT_MODE (fallback/default)
+//
+// Function definition pattern: script <Type> <Name> ( ... )
+//   - <Type> can be: built-in type, modifier, OR any custom identifier
+//   - <Name> is the function name (identifier)
+//   - followed by '(' for parameter list
+//
+// Disambiguation strategy:
+//   1. If next word is a known type keyword → function definition
+//   2. If pattern matches `<identifier> <identifier> (` → function definition
+//   3. Otherwise → statement block (fallback)
+// ---------------------------------------------------------------------------
+
+/** Built-in type keywords that indicate a function definition */
+const FUNC_TYPE_INDICATORS = new Set([
+  "void", "string", "int", "double", "char", "bool",
+  "global", "static", "extern",
+]);
+
+/**
+ * Checks if the pattern after `script` matches a function definition.
+ * Pattern: <identifier> <identifier> (
+ *
+ * @param text - Full input text
+ * @param afterScript - Offset right after "script" keyword
+ * @returns true if the pattern matches a function signature
+ */
+function looksLikeFunctionSignature(text: string, afterScript: number): boolean {
+  // Peek first word (type name or modifier)
+  const first = peekNextWord(text, afterScript);
+  if (!first) return false;
+
+  // If first word is a known type keyword, it's a function definition
+  if (FUNC_TYPE_INDICATORS.has(first.word)) {
+    return true;
+  }
+
+  // For custom types, check if followed by <identifier> (
+  // Pattern: <TypeIdentifier> <NameIdentifier> (
+  const second = peekNextWord(text, first.endOffset);
+  if (!second) return false;
+
+  // Check if second word is followed by '(' (parameter list start)
+  let j = second.endOffset;
+  while (j < text.length && /[ \t\r\n]/.test(text[j])) j++;
+
+  if (j < text.length && text[j] === '(') {
+    return true; // Looks like: script <Type> <Name> (...)
+  }
+
+  return false;
+}
+
+/**
+ * Matches `script` when followed by function signature pattern.
+ * Must be placed BEFORE ScriptStmtEntry in the lexer token list.
+ */
+function matchScriptFuncEntry(
+  text: string,
+  startOffset: number
+): RegExpExecArray | null {
+  const remaining = text.substring(startOffset);
+  // Use WSF suffix assertion to prevent matching "script-xxx"
+  const m = /^script(?![A-Za-z0-9_\-\/])/.exec(remaining);
+  if (!m) return null;
+
+  const afterScript = startOffset + 6; // length of "script"
+
+  if (looksLikeFunctionSignature(text, afterScript)) {
+    return makeMatchResult(m[0], startOffset, text);
+  }
+
+  return null; // Let ScriptStmtEntry handle it
+}
+
+/**
+ * Matches `script` as the default fallback for statement blocks.
+ * Only matches if it does NOT look like a function definition.
+ */
+function matchScriptStmtEntry(
+  text: string,
+  startOffset: number
+): RegExpExecArray | null {
+  const remaining = text.substring(startOffset);
+  // Use WSF suffix assertion to prevent matching "script-xxx"
+  const m = /^script(?![A-Za-z0-9_\-\/])/.exec(remaining);
+  if (!m) return null;
+
+  const afterScript = startOffset + 6; // length of "script"
+
+  // Only match if it does NOT look like a function signature
+  if (looksLikeFunctionSignature(text, afterScript)) {
+    return null; // Let ScriptFuncEntry handle it
+  }
+
+  // Default fallback: match standalone "script" keyword for statement blocks
+  return makeMatchResult(m[0], startOffset, text);
+}
+
+/** Script function definition entry → SCRIPT_FUNC_MODE */
+export const ScriptFuncEntry = createToken({
+  name: "ScriptFuncEntry",
+  pattern: matchScriptFuncEntry,
   push_mode: "SCRIPT_FUNC_MODE",
   line_breaks: false,
+  categories: ScriptEntryCategory,
 });
+
+/** Script statement block entry → SCRIPT_MODE (default fallback) */
+export const ScriptStmtEntry = createToken({
+  name: "ScriptStmtEntry",
+  pattern: matchScriptStmtEntry,
+  push_mode: "SCRIPT_MODE",
+  line_breaks: false,
+  categories: ScriptEntryCategory,
+});
+
+// Legacy export for backward compatibility (will be removed)
+export const ScriptBlockEntry = ScriptFuncEntry;
 
 // ---------------------------------------------------------------------------
 // Custom matcher for `execute` as a script entry keyword
@@ -110,7 +202,7 @@ function matchExecuteScriptEntry(
   startOffset: number
 ): RegExpExecArray | null {
   const remaining = text.substring(startOffset);
-  const m = /^execute(?![A-Za-z0-9_])/.exec(remaining);
+  const m = /^execute(?![A-Za-z0-9_\-\/])/.exec(remaining);
   if (!m) return null;
 
   const afterExecute = startOffset + 7; // length of "execute"
@@ -118,20 +210,14 @@ function matchExecuteScriptEntry(
 
   if (peek === null) {
     // execute at EOF — treat as script entry for error recovery
-    const result = [m[0]] as RegExpExecArray;
-    result.index = startOffset;
-    result.input = text;
-    return result;
+    return makeMatchResult(m[0], startOffset, text);
   }
 
   const nextWord = peek.word;
 
   // If followed by at_time or at_interval_of → definitely script entry
   if (EXECUTE_SCRIPT_FOLLOWERS.has(nextWord)) {
-    const result = [m[0]] as RegExpExecArray;
-    result.index = startOffset;
-    result.input = text;
-    return result;
+    return makeMatchResult(m[0], startOffset, text);
   }
 
   const SCRIPT_INDICATORS = new Set([
@@ -142,10 +228,7 @@ function matchExecuteScriptEntry(
   ]);
 
   if (SCRIPT_INDICATORS.has(nextWord)) {
-    const result = [m[0]] as RegExpExecArray;
-    result.index = startOffset;
-    result.input = text;
-    return result;
+    return makeMatchResult(m[0], startOffset, text);
   }
 
   // If next word is a known end_* keyword or top-level WSF keyword,
@@ -164,10 +247,7 @@ function matchExecuteScriptEntry(
     const charAfter = text[j];
     // If followed by operator-like chars, it's likely script code
     if ("=+-*/<>!&|;({[".includes(charAfter)) {
-      const result = [m[0]] as RegExpExecArray;
-      result.index = startOffset;
-      result.input = text;
-      return result;
+      return makeMatchResult(m[0], startOffset, text);
     }
 
     // Check for `in` keyword → WSF command pattern
@@ -178,10 +258,7 @@ function matchExecuteScriptEntry(
   }
 
   // Default: treat as script entry for the behavior tree case
-  const result = [m[0]] as RegExpExecArray;
-  result.index = startOffset;
-  result.input = text;
-  return result;
+  return makeMatchResult(m[0], startOffset, text);
 }
 
 export const ExecuteScriptEntry = createToken({
@@ -189,130 +266,8 @@ export const ExecuteScriptEntry = createToken({
   pattern: matchExecuteScriptEntry,
   push_mode: "SCRIPT_MODE",
   line_breaks: false,
+  categories: ScriptEntryCategory,
 });
 
 // When execute custom matcher returns null, it falls through to WsfIdentifier
 // which captures `execute` as a regular WSF identifier token
-
-// ---------------------------------------------------------------------------
-// Heuristic Escape Matcher for SCRIPT_MODE
-//
-// Problem: If `end_on_initialize` (or any script-exit token) is missing,
-// the lexer stays in SCRIPT_MODE and consumes the entire rest of the file.
-//
-// Solution: In SCRIPT_MODE, use a custom matcher that detects top-level
-// WSF keywords that should NOT appear inside script code. When detected,
-// emit a synthetic pop_mode token to escape back to WSF_MODE.
-//
-// This is registered as a low-priority token in SCRIPT_MODE.
-// ---------------------------------------------------------------------------
-
-function matchHeuristicEscape(
-  text: string,
-  startOffset: number
-): RegExpExecArray | null {
-  // Only trigger at word boundary (start of line or after whitespace)
-  if (startOffset > 0) {
-    const prevChar = text[startOffset - 1];
-    if (/[A-Za-z0-9_]/.test(prevChar)) {
-      return null;
-    }
-  }
-
-  const remaining = text.substring(startOffset);
-  const m = IDENTIFIER_PATTERN.exec(remaining);
-  if (!m || m.index !== 0) return null;
-
-  const word = m[0];
-
-  // Check if this word is a top-level WSF keyword or end_* keyword
-  // that definitely shouldn't appear inside script code
-  if (WSF_TOP_LEVEL_KEYWORDS.has(word) || WSF_END_KEYWORDS.has(word)) {
-    // Don't consume the word — emit zero-length token to trigger pop_mode
-    // Actually, Chevrotain doesn't support zero-length tokens well.
-    // Instead, we let the normal script-exit tokens handle end_* keywords.
-    // This heuristic escape only triggers for WSF block-open keywords.
-    if (WSF_TOP_LEVEL_KEYWORDS.has(word)) {
-      // Emit a zero-width escape token at this position
-      // Chevrotain requires non-empty matches, so we use a special approach:
-      // We don't match here; instead, the multi-mode-lexer will register
-      // specific WSF keywords as pop_mode tokens in SCRIPT_MODE
-      return null;
-    }
-  }
-
-  return null;
-}
-
-// The heuristic escape is implemented differently:
-// Instead of a custom matcher, we create specific tokens for known
-// WSF keywords that appear in SCRIPT_MODE with pop_mode: true
-// These act as escape hatches when end_* tokens are missing
-
-export const ScriptHeuristicEscape = createToken({
-  name: "ScriptHeuristicEscape",
-  pattern: matchHeuristicEscapeNonEmpty,
-  pop_mode: true,
-  line_breaks: false,
-});
-
-/**
- * Non-empty heuristic escape: matches a top-level WSF keyword in script mode
- * and triggers pop_mode. The matched text will be re-lexed in WSF_MODE
- * because we consume it as a special token that the parser can recognize.
- *
- * This is a last-resort fallback — it should be placed after ALL other
- * tokens in SCRIPT_MODE so it only fires when nothing else matches.
- */
-function matchHeuristicEscapeNonEmpty(
-  text: string,
-  startOffset: number
-): RegExpExecArray | null {
-  // Must be at a word boundary
-  if (startOffset > 0 && /[A-Za-z0-9_]/.test(text[startOffset - 1])) {
-    return null;
-  }
-
-  // Check for newline before this position (heuristic: WSF keywords
-  // typically appear at the start of a line, possibly with indentation)
-  // Look backwards for newline, skipping spaces/tabs
-  let k = startOffset - 1;
-  while (k >= 0 && (text[k] === ' ' || text[k] === '\t')) {
-    k--;
-  }
-  // k < 0 means start of file (OK), or text[k] should be \n or \r
-  if (k >= 0 && text[k] !== '\n' && text[k] !== '\r') {
-    return null; // Not at start of line
-  }
-
-  const remaining = text.substring(startOffset);
-  const m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(remaining);
-  if (!m) return null;
-
-  const word = m[0];
-
-  // Only trigger for top-level WSF keywords (not end_* which have dedicated tokens)
-  if (!WSF_TOP_LEVEL_KEYWORDS.has(word)) {
-    return null;
-  }
-
-  // Check what follows the keyword: if followed by an operator or punctuation
-  // character (., =, (, [, +, -, *, /, <, >, !, ;, {), this is likely
-  // script code using the keyword as a variable name, not a stray WSF block.
-  const afterWord = startOffset + word.length;
-  let j = afterWord;
-  while (j < text.length && (text[j] === ' ' || text[j] === '\t')) {
-    j++;
-  }
-  if (j < text.length) {
-    const ch = text[j];
-    if (".=([+\\-*/<>!;{&|^".includes(ch)) {
-      return null; // Looks like script code using this as an identifier
-    }
-  }
-
-  const result = [word] as RegExpExecArray;
-  result.index = startOffset;
-  result.input = text;
-  return result;
-}

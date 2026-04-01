@@ -29,16 +29,6 @@ export function computeDiagnostics(state) {
         for (const err of entry.errors) {
             diagnostics.push(parseErrorToDiagnostic(err, positionMapper, "script"));
         }
-        // Warn about heuristic escape (missing end_* keyword)
-        if (entry.slice.escapedByHeuristic) {
-            const tok = entry.slice.entryToken;
-            diagnostics.push({
-                range: positionMapper.tokenToRange(tok.startOffset, tok.endOffset ?? tok.startOffset),
-                severity: DiagnosticSeverity.Warning,
-                message: `Missing closing keyword for '${tok.image}' — script block terminated by heuristic escape`,
-                source: "afsim",
-            });
-        }
     }
     return diagnostics;
 }

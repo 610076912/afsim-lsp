@@ -40,7 +40,7 @@ describe("Parse Orchestrator — parseDocument", () => {
     expect(entry.cst).not.toBeNull();
     expect(entry.cst!.name).toBe("scriptBody");
     expect(entry.slice.isFuncBlock).toBe(false);
-    expect(entry.slice.injectedContextType).toBe("Processor");
+    expect(entry.slice.contextTag).toBe("Processor");
   });
 
   it("parses a document with a script function block", () => {
@@ -116,7 +116,7 @@ describe("Parse Orchestrator — parseDocument", () => {
     const [entryToken, cstEntry] = [...result.scriptEntries.entries()][0];
     expect(entryToken.image).toMatch(/on_update/);
     expect(cstEntry.slice.entryToken).toBe(entryToken);
-    expect(cstEntry.slice.injectedContextType).toBe("Sensor");
+    expect(cstEntry.slice.contextTag).toBe("Sensor");
   });
 
   it("handles empty script body gracefully", () => {
@@ -213,7 +213,7 @@ describe("Parse Orchestrator — parseDocument", () => {
     expect(result.scriptEntries.size).toBe(2);
 
     const entries = [...result.scriptEntries.values()];
-    expect(entries[0].slice.injectedContextType).toBe("Sensor");
-    expect(entries[1].slice.injectedContextType).toBe("Comm");
+    expect(entries[0].slice.contextTag).toBe("Sensor");
+    expect(entries[1].slice.contextTag).toBe("Comm");
   });
 });

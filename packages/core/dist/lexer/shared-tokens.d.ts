@@ -7,6 +7,5 @@ export declare const RealLiteral: TokenType;
 export declare const IntegerLiteral: TokenType;
 export declare const StringLiteral: TokenType;
 export declare const CharLiteral: TokenType;
-export declare const IDENTIFIER_PATTERN: RegExp;
 export declare const sharedTokens: TokenType[];
 //# sourceMappingURL=shared-tokens.d.ts.map

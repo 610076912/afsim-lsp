@@ -224,8 +224,12 @@ function extractScriptPlaceholderSymbol(
     "OnInitialize", "OnUpdate", "OnEntry", "OnExit", "OnMessage",
     "OnInit", "OnTrackDrop", "OnBingo", "OnEmpty", "OnRefuel",
     "OnReserve", "OnNewExecute", "OnNewFail", "Precondition",
-    "NextState", "ScriptVariables", "ExecuteScriptEntry", "ScriptBlockEntry",
+    "NextState", "ScriptVariables", "ExecuteScriptEntry",
+    "ScriptFuncEntry", "ScriptStmtEntry",  // New script entry tokens
   ];
+
+  // Token names that indicate function definition blocks
+  const funcBlockTokens = new Set(["ScriptFuncEntry", "ScriptBlockEntry"]);
 
   for (const key of entryKeys) {
     const tok = node.children[key]?.[0] as IToken | undefined;
@@ -260,7 +264,7 @@ function extractScriptPlaceholderSymbol(
 
       return {
         name: tok.image,
-        kind: key === "ScriptBlockEntry" ? SymbolKind.Namespace : SymbolKind.Method,
+        kind: funcBlockTokens.has(key) ? SymbolKind.Namespace : SymbolKind.Method,
         range,
         selectionRange: selRange,
         children: children.length > 0 ? children : undefined,

@@ -88,7 +88,7 @@ end_script`);
     const { slices } = sliceTokens(tokens);
     expect(slices).toHaveLength(1);
     expect(slices[0].isFuncBlock).toBe(true);
-    expect(slices[0].entryToken.tokenType.name).toBe("ScriptBlockEntry");
+    expect(slices[0].entryToken.tokenType.name).toBe("ScriptFuncEntry");
     expect(slices[0].exitToken?.tokenType.name).toBe("EndScript");
   });
 
@@ -101,7 +101,7 @@ end_processor`);
 
     const { slices } = sliceTokens(tokens);
     expect(slices).toHaveLength(1);
-    expect(slices[0].injectedContextType).toBe("Processor");
+    expect(slices[0].contextTag).toBe("Processor");
   });
 
   it("should handle input with no script blocks", () => {

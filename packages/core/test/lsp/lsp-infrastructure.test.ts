@@ -146,6 +146,6 @@ describe("DocumentStateManager", () => {
     expect(state.parseResult.scriptEntries.size).toBe(1);
     const entry = [...state.parseResult.scriptEntries.values()][0];
     expect(entry.errors).toHaveLength(0);
-    expect(entry.slice.injectedContextType).toBe("Processor");
+    expect(entry.slice.contextTag).toBe("Processor");
   });
 });
