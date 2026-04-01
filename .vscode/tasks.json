@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "编译核心包",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/packages/core && npx tsc -p tsconfig.json",
+      "problemMatcher": ["$tsc"],
+      "group": "build"
+    },
+    {
+      "label": "编译扩展",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/packages/vscode-extension && npx tsc -p tsconfig.json",
+      "problemMatcher": ["$tsc"],
+      "group": "build",
+      "dependsOn": ["编译核心包"]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "afsim-lsp-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AFsim LSP Service - Language Server for AFSIM WSF and Script",
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:core": "pnpm --filter @afsim-lsp/core build",
+    "build:ext": "pnpm --filter afsim-lsp-vscode build",
+    "test": "pnpm --filter @afsim-lsp/core test",
+    "clean": "pnpm -r clean"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

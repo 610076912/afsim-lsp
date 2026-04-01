@@ -1,0 +1,46 @@
+{
+  "name": "afsim-lsp-vscode",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "displayName": "AFSIM Language Support",
+  "description": "Language server support for AFSIM WSF scenario files and script",
+  "publisher": "afsim-lsp",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "activationEvents": [
+    "onLanguage:afsim"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "afsim",
+        "aliases": ["AFSIM", "afsim", "WSF"],
+        "extensions": [".wsf", ".afsim"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "afsim",
+        "scopeName": "source.afsim",
+        "path": "./syntaxes/afsim.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "pnpm --filter @afsim-lsp/core build && tsc -p tsconfig.json",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@afsim-lsp/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.5.0",
+    "rimraf": "^5.0.0"
+  }
+}

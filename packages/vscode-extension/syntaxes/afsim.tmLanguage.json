@@ -1,0 +1,115 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicolo-ribaudo/vscode-textmate/refs/heads/main/test-cases/themes/syntaxes/tmGrammar.schema.json",
+  "name": "AFSIM",
+  "scopeName": "source.afsim",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#script-blocks" },
+    { "include": "#wsf-end-keywords" },
+    { "include": "#wsf-block-keywords" },
+    { "include": "#wsf-misc-keywords" },
+    { "include": "#numbers" },
+    { "include": "#booleans" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.afsim",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "patterns": [{ "include": "#comments" }]
+        },
+        {
+          "name": "comment.line.double-slash.afsim",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.hash.afsim",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.afsim",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.afsim", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.quoted.single.afsim",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "name": "constant.character.escape.afsim", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+    "script-blocks": {
+      "patterns": [
+        {
+          "name": "meta.script-block.afsim",
+          "begin": "\\b(on_initialize2?|on_update|on_entry|on_exit|on_message|on_init|on_track_drop|on_bingo|on_empty|on_refuel|on_reserve|on_new_execute|on_new_fail|precondition|next_state|script_variables|script)\\b",
+          "end": "\\b(end_on_initialize2?|end_on_update|end_on_entry|end_on_exit|end_on_message|end_on_init|end_on_track_drop|end_on_bingo|end_on_empty|end_on_refuel|end_on_reserve|end_on_new_execute|end_on_new_fail|end_precondition|end_next_state|end_script_variables|end_script)\\b",
+          "beginCaptures": { "1": { "name": "keyword.control.script-entry.afsim" } },
+          "endCaptures": { "1": { "name": "keyword.control.script-exit.afsim" } },
+          "patterns": [
+            { "include": "#comments" },
+            { "include": "#strings" },
+            { "include": "#script-keywords" },
+            { "include": "#script-types" },
+            { "include": "#script-operators" },
+            { "include": "#numbers" },
+            { "include": "#booleans" }
+          ]
+        }
+      ]
+    },
+    "script-keywords": {
+      "match": "\\b(if|else|while|do|for|foreach|in|break|continue|return|global|static|extern)\\b",
+      "name": "keyword.control.afsim"
+    },
+    "script-types": {
+      "match": "\\b(string|int|double|char|bool|void)\\b",
+      "name": "storage.type.afsim"
+    },
+    "script-operators": {
+      "match": "==|!=|>=|<=|&&|\\|\\||\\+=|-=|\\*=|/=|->",
+      "name": "keyword.operator.afsim"
+    },
+    "wsf-block-keywords": {
+      "match": "\\b(platform_type|platform|sensor|processor|comm|network|router|mover|fuel|zone|zone_set|route|route_network|radar_signature|antenna_pattern|thermal_system|masking_pattern|intersect_mesh|aero|callback|use_callback|track_manager|track|navigation_errors|transmitter|receiver|field_of_view|sector|scheduler|mode|mode_template|beam|state|behavior|advanced_behavior|sequence|sequence_with_memory|selector|selector_with_memory|parallel|medium|protocol|router_protocol|process|default_process|default_routing|service|commodity|transactor|container|visual_part|select|frequency_list|powers|propagation|propagation_model|attenuation|attenuation_model|clutter|clutter_model|error_model|error_model_parameters|query|filter|dis_interface|xio_interface|connections|edit_connections|filtered_connection|navigation|terrain|global_environment|central_body|observer|script_struct|signal_processor|event_pipe|script_interface|side|iff_mapping|conditionals|classification|classification_levels|group|draw|noisy_cloud|detection_thresholds|detection_probability|fusion_method)\\b",
+      "name": "keyword.declaration.afsim"
+    },
+    "wsf-end-keywords": {
+      "match": "\\bend_\\w+\\b",
+      "name": "keyword.declaration.end.afsim"
+    },
+    "wsf-misc-keywords": {
+      "match": "\\b(add|edit|load|include|end_time|default)\\b",
+      "name": "keyword.other.afsim"
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.afsim",
+          "match": "\\b\\d+\\.\\d*(?:[eE][+-]?\\d+)?\\b|\\.\\d+(?:[eE][+-]?\\d+)?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.afsim",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "booleans": {
+      "match": "\\b(true|false|yes|no|on|off|none|null|NULL)\\b",
+      "name": "constant.language.afsim"
+    }
+  }
+}

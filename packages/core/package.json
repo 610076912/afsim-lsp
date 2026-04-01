@@ -1,0 +1,24 @@
+{
+  "name": "@afsim-lsp/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Editor-agnostic language services core for AFSIM",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "chevrotain": "^11.0.3",
+    "vscode-languageserver-types": "^3.17.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "rimraf": "^5.0.0"
+  }
+}
