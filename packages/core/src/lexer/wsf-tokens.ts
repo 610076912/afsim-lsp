@@ -168,7 +168,7 @@ export const ScriptStruct = createWsfToken("ScriptStruct", "script_struct", { ca
 export const SignalProcessor = createWsfToken("SignalProcessor", "signal_processor", { categories: WsfBlockOpen });
 export const EventPipe = createWsfToken("EventPipe", "event_pipe", { categories: WsfBlockOpen });
 export const ScriptInterface = createWsfToken("ScriptInterface", "script_interface", { categories: WsfBlockOpen });
-export const Side = createWsfToken("Side", "side", { categories: WsfBlockOpen });
+// export const Side = createWsfToken("Side", "side", { categories: WsfBlockOpen });
 export const IffMapping = createWsfToken("IffMapping", "iff_mapping", { categories: WsfBlockOpen });
 export const Conditionals = createWsfToken("Conditionals", "conditionals", { categories: WsfBlockOpen });
 
@@ -320,7 +320,7 @@ export const EndScriptStruct = createWsfToken("EndScriptStruct", "end_script_str
 export const EndSignalProcessor = createWsfToken("EndSignalProcessor", "end_signal_processor", { categories: WsfBlockClose });
 export const EndEventPipe = createWsfToken("EndEventPipe", "end_event_pipe", { categories: WsfBlockClose });
 export const EndScriptInterface = createWsfToken("EndScriptInterface", "end_script_interface", { categories: WsfBlockClose });
-export const EndSide = createWsfToken("EndSide", "end_side", { categories: WsfBlockClose });
+// export const EndSide = createWsfToken("EndSide", "end_side", { categories: WsfBlockClose });
 export const EndIffMapping = createWsfToken("EndIffMapping", "end_iff_mapping", { categories: WsfBlockClose });
 export const EndConditionals = createWsfToken("EndConditionals", "end_conditionals", { categories: WsfBlockClose });
 
@@ -400,8 +400,8 @@ export const WSF_END_KEYWORDS: ReadonlySet<string> = new Set([
   "end_connections", "end_edit_connections", "end_filtered_connection",
   "end_navigation", "end_terrain", "end_global_environment",
   "end_central_body", "end_observer", "end_script_struct",
-  "end_signal_processor", "end_event_pipe", "end_script_interface",
-  "end_side", "end_iff_mapping", "end_conditionals",
+  "end_signal_processor", "end_event_pipe", "end_script_interface", 
+  "end_iff_mapping", "end_conditionals",
   "end_classification", "end_classification_levels",
   "end_group", "end_draw", "end_noise_cloud",
   "end_detection_thresholds", "end_detection_probability",

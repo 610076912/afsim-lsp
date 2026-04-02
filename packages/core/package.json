@@ -17,8 +17,9 @@
     "vscode-languageserver-types": "^3.17.5"
   },
   "devDependencies": {
+    "@types/node": "^25.5.0",
+    "rimraf": "^5.0.0",
     "typescript": "^5.5.0",
-    "vitest": "^2.0.0",
-    "rimraf": "^5.0.0"
+    "vitest": "^2.0.0"
   }
 }

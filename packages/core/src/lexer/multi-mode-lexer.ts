@@ -19,7 +19,7 @@ import {
   Query, Filter, DisInterface, XioInterface, Connections,
   EditConnections, FilteredConnection, Navigation, Terrain,
   GlobalEnvironment, CentralBody, Observer, ScriptStruct,
-  SignalProcessor, EventPipe, ScriptInterface, Side, IffMapping,
+  SignalProcessor, EventPipe, ScriptInterface, IffMapping,
   Conditionals, Classification, ClassificationLevels, Group,
   Draw, NoisyCloud, DetectionThresholds, DetectionProbability,
   FusionMethod,
@@ -45,7 +45,7 @@ import {
   EndFilteredConnection, EndNavigation, EndTerrain,
   EndGlobalEnvironment, EndCentralBody, EndObserver, EndScriptStruct,
   EndSignalProcessor, EndEventPipe, EndScriptInterface,
-  EndSide, EndIffMapping, EndConditionals, EndClassification,
+  EndIffMapping, EndConditionals, EndClassification,
   EndClassificationLevels, EndGroup, EndDraw, EndNoisyCloud,
   EndDetectionThresholds, EndDetectionProbability, EndFusionMethod,
   EndFile,
@@ -185,7 +185,7 @@ const WSF_MODE_TOKENS: TokenType[] = [
   EndGlobalEnvironment, EndCentralBody,
   EndObserver, EndScriptStruct,
   EndSignalProcessor, EndEventPipe, EndScriptInterface,
-  EndSide, EndIffMapping, EndConditionals,
+  EndIffMapping, EndConditionals,
   EndGroup, EndDraw, EndNoisyCloud,
   EndFusionMethod, EndFile,
 
@@ -230,7 +230,7 @@ const WSF_MODE_TOKENS: TokenType[] = [
   FilteredConnection, Filter, Query,  // filteredConnection before filter
   DisInterface, XioInterface, Terrain,
   GlobalEnvironment, CentralBody, Observer,
-  EventPipe, Side, IffMapping, Conditionals,
+  EventPipe, IffMapping, Conditionals,
   Group, Draw, NoisyCloud, FusionMethod,
 
   // --- WSF misc keywords (longer before shorter) ---

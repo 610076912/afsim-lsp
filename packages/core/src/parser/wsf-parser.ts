@@ -15,7 +15,7 @@ import {
   Query, Filter, DisInterface, XioInterface, Connections,
   EditConnections, FilteredConnection, Navigation, Terrain,
   GlobalEnvironment, CentralBody, Observer, ScriptStruct,
-  SignalProcessor, EventPipe, ScriptInterface, Side, IffMapping,
+  SignalProcessor, EventPipe, ScriptInterface, IffMapping,
   Conditionals, Classification, ClassificationLevels, Group,
   Draw, NoisyCloud, DetectionThresholds, DetectionProbability,
   FusionMethod,
@@ -41,7 +41,7 @@ import {
   EndFilteredConnection, EndNavigation, EndTerrain,
   EndGlobalEnvironment, EndCentralBody, EndObserver, EndScriptStruct,
   EndSignalProcessor, EndEventPipe, EndScriptInterface,
-  EndSide, EndIffMapping, EndConditionals, EndClassification,
+  EndIffMapping, EndConditionals, EndClassification,
   EndClassificationLevels, EndGroup, EndDraw, EndNoisyCloud,
   EndDetectionThresholds, EndDetectionProbability, EndFusionMethod,
   EndFile,
@@ -64,6 +64,7 @@ import {
   ScriptBlockEntry, ExecuteScriptEntry,
 } from "../lexer/custom-matchers.js";
 import { createMultiModeLexer } from "../lexer/multi-mode-lexer.js";
+import { TraceLogger } from "../infra/logger.js";
 
 // ============================================================================
 // WSF Parser — structural parser for WSF configuration blocks
@@ -112,7 +113,7 @@ const allWsfTokenTypes: TokenType[] = [
   FilteredConnection, Filter, Query,
   DisInterface, XioInterface, Terrain,
   GlobalEnvironment, CentralBody, Observer,
-  EventPipe, Side, IffMapping, Conditionals,
+  EventPipe, IffMapping, Conditionals,
   Group, Draw, NoisyCloud, FusionMethod,
 
   // WSF end keywords
@@ -136,7 +137,7 @@ const allWsfTokenTypes: TokenType[] = [
   EndFilteredConnection, EndNavigation, EndTerrain,
   EndGlobalEnvironment, EndCentralBody, EndObserver, EndScriptStruct,
   EndSignalProcessor, EndEventPipe, EndScriptInterface,
-  EndSide, EndIffMapping, EndConditionals, EndClassification,
+  EndIffMapping, EndConditionals, EndClassification,
   EndClassificationLevels, EndGroup, EndDraw, EndNoisyCloud,
   EndDetectionThresholds, EndDetectionProbability, EndFusionMethod,
   EndFile,
@@ -224,15 +225,24 @@ export class WsfParser extends CstParser {
   });
 
   private platformBlock = this.RULE("platformBlock", () => {
-    this.CONSUME(Platform);
-    this.CONSUME(WsfIdentifier, { LABEL: "platformName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "platformTypeName" });
+    this.ACTION(() => TraceLogger.enterRule("platformBlock"));
+    const kwToken = this.CONSUME(Platform);
+    this.ACTION(() => TraceLogger.consume("Platform", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "platformName" });
+    this.ACTION(() => TraceLogger.consume("platformName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "platformTypeName" });
+        this.ACTION(() => TraceLogger.consume("platformTypeName", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.SUBRULE(this.platformTypeContent);
     });
-    this.CONSUME(EndPlatform);
+    const endKwToken = this.CONSUME(EndPlatform);
+    this.ACTION(() => TraceLogger.consume("EndPlatform", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("platformBlock"));
   });
 
   // ========================================================================
@@ -240,10 +250,17 @@ export class WsfParser extends CstParser {
   // ========================================================================
 
   private sensorBlock = this.RULE("sensorBlock", () => {
-    this.CONSUME(Sensor);
-    this.CONSUME(WsfIdentifier, { LABEL: "sensorName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "sensorType" });
+    this.ACTION(() => TraceLogger.enterRule("sensorBlock"));
+    const kwToken = this.CONSUME(Sensor);
+    this.ACTION(() => TraceLogger.consume("Sensor", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "sensorName" });
+    this.ACTION(() => TraceLogger.consume("sensorName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "sensorType" });
+        this.ACTION(() => TraceLogger.consume("sensorType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -251,14 +268,23 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndSensor);
+    const endKwToken = this.CONSUME(EndSensor);
+    this.ACTION(() => TraceLogger.consume("EndSensor", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("sensorBlock"));
   });
 
   private processorBlock = this.RULE("processorBlock", () => {
-    this.CONSUME(Processor);
-    this.CONSUME(WsfIdentifier, { LABEL: "processorName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "processorType" });
+    this.ACTION(() => TraceLogger.enterRule("processorBlock"));
+    const kwToken = this.CONSUME(Processor);
+    this.ACTION(() => TraceLogger.consume("Processor", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "processorName" });
+    this.ACTION(() => TraceLogger.consume("processorName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "processorType" });
+        this.ACTION(() => TraceLogger.consume("processorType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -266,14 +292,23 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndProcessor);
+    const endKwToken = this.CONSUME(EndProcessor);
+    this.ACTION(() => TraceLogger.consume("EndProcessor", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("processorBlock"));
   });
 
   private commBlock = this.RULE("commBlock", () => {
-    this.CONSUME(Comm);
-    this.CONSUME(WsfIdentifier, { LABEL: "commName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "commType" });
+    this.ACTION(() => TraceLogger.enterRule("commBlock"));
+    const kwToken = this.CONSUME(Comm);
+    this.ACTION(() => TraceLogger.consume("Comm", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "commName" });
+    this.ACTION(() => TraceLogger.consume("commName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "commType" });
+        this.ACTION(() => TraceLogger.consume("commType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -281,16 +316,28 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndComm);
+    const endKwToken = this.CONSUME(EndComm);
+    this.ACTION(() => TraceLogger.consume("EndComm", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("commBlock"));
   });
 
   private moverBlock = this.RULE("moverBlock", () => {
-    this.CONSUME(Mover);
-    this.OPTION(() => {
-      this.CONSUME(WsfIdentifier, { LABEL: "moverName" });
-      this.OPTION2(() => {
-        this.CONSUME2(WsfIdentifier, { LABEL: "moverType" });
-      });
+    this.ACTION(() => TraceLogger.enterRule("moverBlock"));
+    const kwToken = this.CONSUME(Mover);
+    this.ACTION(() => TraceLogger.consume("Mover", kwToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === kwToken.startLine,
+      DEF: () => {
+        const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "moverName" });
+        this.ACTION(() => TraceLogger.consume("moverName", nameToken.image));
+        this.OPTION2({
+          GATE: () => this.LA(1).startLine === nameToken.startLine,
+          DEF: () => {
+            const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "moverType" });
+            this.ACTION(() => TraceLogger.consume("moverType", typeToken.image));
+          },
+        });
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -298,16 +345,28 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndMover);
+    const endKwToken = this.CONSUME(EndMover);
+    this.ACTION(() => TraceLogger.consume("EndMover", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("moverBlock"));
   });
 
   private fuelBlock = this.RULE("fuelBlock", () => {
-    this.CONSUME(Fuel);
-    this.OPTION(() => {
-      this.CONSUME(WsfIdentifier, { LABEL: "fuelName" });
-      this.OPTION2(() => {
-        this.CONSUME2(WsfIdentifier, { LABEL: "fuelType" });
-      });
+    this.ACTION(() => TraceLogger.enterRule("fuelBlock"));
+    const kwToken = this.CONSUME(Fuel);
+    this.ACTION(() => TraceLogger.consume("Fuel", kwToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === kwToken.startLine,
+      DEF: () => {
+        const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "fuelName" });
+        this.ACTION(() => TraceLogger.consume("fuelName", nameToken.image));
+        this.OPTION2({
+          GATE: () => this.LA(1).startLine === nameToken.startLine,
+          DEF: () => {
+            const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "fuelType" });
+            this.ACTION(() => TraceLogger.consume("fuelType", typeToken.image));
+          },
+        });
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -315,14 +374,23 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndFuel);
+    const endKwToken = this.CONSUME(EndFuel);
+    this.ACTION(() => TraceLogger.consume("EndFuel", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("fuelBlock"));
   });
 
   private routerBlock = this.RULE("routerBlock", () => {
-    this.CONSUME(Router);
-    this.CONSUME(WsfIdentifier, { LABEL: "routerName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "routerType" });
+    this.ACTION(() => TraceLogger.enterRule("routerBlock"));
+    const kwToken = this.CONSUME(Router);
+    this.ACTION(() => TraceLogger.consume("Router", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "routerName" });
+    this.ACTION(() => TraceLogger.consume("routerName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "routerType" });
+        this.ACTION(() => TraceLogger.consume("routerType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -330,14 +398,23 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndRouter);
+    const endKwToken = this.CONSUME(EndRouter);
+    this.ACTION(() => TraceLogger.consume("EndRouter", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("routerBlock"));
   });
 
   private networkBlock = this.RULE("networkBlock", () => {
-    this.CONSUME(Network);
-    this.CONSUME(WsfIdentifier, { LABEL: "networkName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "networkType" });
+    this.ACTION(() => TraceLogger.enterRule("networkBlock"));
+    const kwToken = this.CONSUME(Network);
+    this.ACTION(() => TraceLogger.consume("Network", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "networkName" });
+    this.ACTION(() => TraceLogger.consume("networkName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "networkType" });
+        this.ACTION(() => TraceLogger.consume("networkType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.OR([
@@ -345,31 +422,51 @@ export class WsfParser extends CstParser {
         { ALT: () => this.SUBRULE(this.wsfCommand) },
       ]);
     });
-    this.CONSUME(EndNetwork);
+    const endKwToken = this.CONSUME(EndNetwork);
+    this.ACTION(() => TraceLogger.consume("EndNetwork", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("networkBlock"));
   });
 
   private visualPartBlock = this.RULE("visualPartBlock", () => {
-    this.CONSUME(VisualPart);
-    this.CONSUME(WsfIdentifier, { LABEL: "partName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "partType" });
+    this.ACTION(() => TraceLogger.enterRule("visualPartBlock"));
+    const kwToken = this.CONSUME(VisualPart);
+    this.ACTION(() => TraceLogger.consume("VisualPart", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "partName" });
+    this.ACTION(() => TraceLogger.consume("partName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "partType" });
+        this.ACTION(() => TraceLogger.consume("partType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.SUBRULE(this.wsfCommand);
     });
-    this.CONSUME(EndVisualPart);
+    const endKwToken = this.CONSUME(EndVisualPart);
+    this.ACTION(() => TraceLogger.consume("EndVisualPart", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("visualPartBlock"));
   });
 
   private thermalSystemBlock = this.RULE("thermalSystemBlock", () => {
-    this.CONSUME(ThermalSystem);
-    this.CONSUME(WsfIdentifier, { LABEL: "tsName" });
-    this.OPTION(() => {
-      this.CONSUME2(WsfIdentifier, { LABEL: "tsType" });
+    this.ACTION(() => TraceLogger.enterRule("thermalSystemBlock"));
+    const kwToken = this.CONSUME(ThermalSystem);
+    this.ACTION(() => TraceLogger.consume("ThermalSystem", kwToken.image));
+    const nameToken = this.CONSUME(WsfIdentifier, { LABEL: "tsName" });
+    this.ACTION(() => TraceLogger.consume("tsName", nameToken.image));
+    this.OPTION({
+      GATE: () => this.LA(1).startLine === nameToken.startLine,
+      DEF: () => {
+        const typeToken = this.CONSUME2(WsfIdentifier, { LABEL: "tsType" });
+        this.ACTION(() => TraceLogger.consume("tsType", typeToken.image));
+      },
     });
     this.MANY(() => {
       this.SUBRULE(this.wsfCommand);
     });
-    this.CONSUME(EndThermalSystem);
+    const endKwToken = this.CONSUME(EndThermalSystem);
+    this.ACTION(() => TraceLogger.consume("EndThermalSystem", endKwToken.image));
+    this.ACTION(() => TraceLogger.exitRule("thermalSystemBlock"));
   });
 
   // ========================================================================
