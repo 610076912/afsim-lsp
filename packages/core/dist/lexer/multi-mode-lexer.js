@@ -1,7 +1,11 @@
 import { Lexer } from "chevrotain";
 import { WhiteSpace, BlockComment, LineComment, HashComment, RealLiteral, IntegerLiteral, StringLiteral, CharLiteral, } from "./shared-tokens.js";
-import { PlatformType, Platform, Sensor, Processor, Comm, Network, Router, Mover, Fuel, Zone, ZoneSet, Route, RouteNetwork, RadarSignature, AntennaPattern, ThermalSystem, MaskingPattern, IntersectMesh, Aero, Callback, UseCallback, TrackManager, Track, NavigationErrors, Transmitter, Receiver, FieldOfView, Sector, Scheduler, Mode, ModeTemplate, Beam, State, Behavior, AdvancedBehavior, Sequence, SequenceWithMemory, Selector, SelectorWithMemory, Parallel, Medium, Protocol, RouterProtocol, Process, DefaultProcess, DefaultRouting, Service, Commodity, Transactor, Container, VisualPart, Select, FrequencyList, Powers, Propagation, PropagationModel, Attenuation, AttenuationModel, Clutter, ClutterModel, ErrorModel, ErrorModelParameters, Query, Filter, DisInterface, XioInterface, Connections, EditConnections, FilteredConnection, Navigation, Terrain, GlobalEnvironment, CentralBody, Observer, ScriptStruct, SignalProcessor, EventPipe, ScriptInterface, IffMapping, Conditionals, Classification, ClassificationLevels, Group, Draw, NoisyCloud, DetectionThresholds, DetectionProbability, FusionMethod, WsfAdd, WsfEdit, WsfLoad, WsfInclude, WsfTrue, WsfFalse, WsfYes, WsfNo, WsfOn, WsfOff, WsfNone, WsfDefault, WsfEndTime, EndPlatformType, EndPlatform, EndSensor, EndProcessor, EndComm, EndNetwork, EndRouter, EndMover, EndFuel, EndZone, EndZoneSet, EndRoute, EndRouteNetwork, EndRadarSignature, EndAntennaPattern, EndThermalSystem, EndMaskingPattern, EndIntersectMesh, EndAero, EndCallback, EndUseCallback, EndTrackManager, EndTrack, EndNavigationErrors, EndTransmitter, EndReceiver, EndFieldOfView, EndSector, EndScheduler, EndMode, EndModeTemplate, EndBeam, EndState, EndBehavior, EndAdvancedBehavior, EndSequence, EndSequenceWithMemory, EndSelector, EndSelectorWithMemory, EndParallel, EndMedium, EndProtocol, EndRouterProtocol, EndProcess, EndDefaultProcess, EndDefaultRouting, EndService, EndCommodity, EndTransactor, EndContainer, EndVisualPart, EndSelect, EndFrequencyList, EndPowers, EndPropagation, EndPropagationModel, EndAttenuation, EndAttenuationModel, EndClutter, EndClutterModel, EndErrorModel, EndErrorModelParameters, EndQuery, EndFilter, EndDisInterface, EndXioInterface, EndConnections, EndEditConnections, EndFilteredConnection, EndNavigation, EndTerrain, EndGlobalEnvironment, EndCentralBody, EndObserver, EndScriptStruct, EndSignalProcessor, EndEventPipe, EndScriptInterface, EndIffMapping, EndConditionals, EndClassification, EndClassificationLevels, EndGroup, EndDraw, EndNoisyCloud, EndDetectionThresholds, EndDetectionProbability, EndFusionMethod, EndFile, OnInitialize, OnUpdate, OnEntry, OnExit, OnMessage, OnInit, OnTrackDrop, OnBingo, OnEmpty, OnRefuel, OnReserve, OnNewExecute, OnNewFail, Precondition, NextState, ScriptVariables, WsfIdentifier, } from "./wsf-tokens.js";
-import { EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage, EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel, EndOnReserve, EndOnNewExecute, EndOnNewFail, EndPrecondition, EndNextState, EndScriptVariables, EndExecute, EndScript, ScriptIf, ScriptElse, ScriptWhile, ScriptDo, ScriptFor, ScriptForeach, ScriptIn, ScriptBreak, ScriptContinue, ScriptReturn, ScriptNull, ScriptTrue, ScriptFalse, ScriptString, ScriptInt, ScriptDouble, ScriptChar, ScriptBool, ScriptGlobal, ScriptStatic, ScriptExtern, EqEq, NotEq, GtEq, LtEq, AndAnd, OrOr, Not, PlusAssign, MinusAssign, TimesAssign, DivAssign, RArrow, Assign, Plus, Minus, Star, Slash, Caret, LAngle, RAngle, LParen, RParen, LBrace, RBrace, LBracket, RBracket, Semicolon, Comma, Dot, Colon, PreprocessorVar, ScriptIdentifier, } from "./script-tokens.js";
+import { PlatformType, Platform, Sensor, Processor, Comm, Network, Router, Mover, Fuel, Zone, ZoneSet, Route, RouteNetwork, RadarSignature, AntennaPattern, ThermalSystem, MaskingPattern, IntersectMesh, Aero, Callback, UseCallback, TrackManager, Track, NavigationErrors, Transmitter, Receiver, FieldOfView, Sector, Scheduler, Mode, ModeTemplate, Beam, State, Behavior, AdvancedBehavior, Sequence, SequenceWithMemory, Selector, SelectorWithMemory, Parallel, Medium, Protocol, RouterProtocol, Process, DefaultProcess, DefaultRouting, Service, Commodity, Transactor, Container, VisualPart, Select, FrequencyList, Powers, Propagation, PropagationModel, Attenuation, AttenuationModel, Clutter, ClutterModel, ErrorModel, ErrorModelParameters, Query, Filter, DisInterface, XioInterface, Connections, EditConnections, FilteredConnection, Navigation, Terrain, GlobalEnvironment, CentralBody, Observer, ScriptStruct, SignalProcessor, EventPipe, ScriptInterface, IffMapping, Conditionals, Classification, ClassificationLevels, Group, Draw, NoisyCloud, DetectionThresholds, DetectionProbability, FusionMethod, WsfAdd, WsfEdit, WsfLoad, WsfInclude, WsfEndTime, EndPlatformType, EndPlatform, EndSensor, EndProcessor, EndComm, EndNetwork, EndRouter, EndMover, EndFuel, EndZone, EndZoneSet, EndRoute, EndRouteNetwork, EndRadarSignature, EndAntennaPattern, EndThermalSystem, EndMaskingPattern, EndIntersectMesh, EndAero, EndCallback, EndUseCallback, EndTrackManager, EndTrack, EndNavigationErrors, EndTransmitter, EndReceiver, EndFieldOfView, EndSector, EndScheduler, EndMode, EndModeTemplate, EndBeam, EndState, EndBehavior, EndAdvancedBehavior, EndSequence, EndSequenceWithMemory, EndSelector, EndSelectorWithMemory, EndParallel, EndMedium, EndProtocol, EndRouterProtocol, EndProcess, EndDefaultProcess, EndDefaultRouting, EndService, EndCommodity, EndTransactor, EndContainer, EndVisualPart, EndSelect, EndFrequencyList, EndPowers, EndPropagation, EndPropagationModel, EndAttenuation, EndAttenuationModel, EndClutter, EndClutterModel, EndErrorModel, EndErrorModelParameters, EndQuery, EndFilter, EndDisInterface, EndXioInterface, EndConnections, EndEditConnections, EndFilteredConnection, EndNavigation, EndTerrain, EndGlobalEnvironment, EndCentralBody, EndObserver, EndScriptStruct, EndSignalProcessor, EndEventPipe, EndScriptInterface, EndIffMapping, EndConditionals, EndClassification, EndClassificationLevels, EndGroup, EndDraw, EndNoisyCloud, EndDetectionThresholds, EndDetectionProbability, EndFusionMethod, EndFile, OnInitialize, OnUpdate, OnEntry, OnExit, OnMessage, OnInit, OnTrackDrop, OnBingo, OnEmpty, OnRefuel, OnReserve, OnNewExecute, OnNewFail, Precondition, NextState, ScriptVariables, WsfIdentifier, 
+// WSF Container Block End keywords (OnXXX event handlers)
+EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage, EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel, EndOnReserve, EndOnNewExecute, EndOnNewFail, EndNextState, } from "./wsf-tokens.js";
+import { 
+// Pure script exit tokens
+EndPrecondition, EndScriptVariables, EndExecute, EndScript, ScriptIf, ScriptElse, ScriptWhile, ScriptDo, ScriptFor, ScriptForeach, ScriptIn, ScriptBreak, ScriptContinue, ScriptReturn, ScriptNull, ScriptTrue, ScriptFalse, ScriptString, ScriptInt, ScriptDouble, ScriptChar, ScriptBool, ScriptGlobal, ScriptStatic, ScriptExtern, EqEq, NotEq, GtEq, LtEq, AndAnd, OrOr, Not, PlusAssign, MinusAssign, TimesAssign, DivAssign, RArrow, Assign, Plus, Minus, Star, Slash, Caret, LAngle, RAngle, LParen, RParen, LBrace, RBrace, LBracket, RBracket, Semicolon, Comma, Dot, Colon, PreprocessorVar, ScriptIdentifier, } from "./script-tokens.js";
 import { ScriptFuncEntry, ScriptStmtEntry, ExecuteScriptEntry, } from "./custom-matchers.js";
 // ============================================================================
 // Resolve LONGER_ALT relationships for prefix-conflicting tokens
@@ -39,8 +43,6 @@ EndErrorModel.LONGER_ALT = EndErrorModelParameters;
 EndClassification.LONGER_ALT = EndClassificationLevels;
 EndZone.LONGER_ALT = EndZoneSet;
 EndConnections.LONGER_ALT = EndEditConnections;
-// WSF misc
-WsfNo.LONGER_ALT = WsfNone;
 // Script keywords
 ScriptDo.LONGER_ALT = ScriptDouble;
 ScriptIn.LONGER_ALT = ScriptInt;
@@ -106,6 +108,10 @@ const WSF_MODE_TOKENS = [
     EndIffMapping, EndConditionals,
     EndGroup, EndDraw, EndNoisyCloud,
     EndFusionMethod, EndFile,
+    // --- WSF Container Block End keywords (OnXXX event handlers) ---
+    EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage,
+    EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel,
+    EndOnReserve, EndOnNewExecute, EndOnNewFail, EndNextState,
     // --- Script entry keywords (push_mode) ---
     OnInitialize,
     OnUpdate, OnEntry, OnExit, OnMessage,
@@ -151,9 +157,6 @@ const WSF_MODE_TOKENS = [
     // --- WSF misc keywords (longer before shorter) ---
     WsfEndTime,
     WsfAdd, WsfEdit, WsfLoad, WsfInclude,
-    WsfTrue, WsfFalse, WsfYes,
-    WsfNone, WsfNo, // none before no
-    WsfOn, WsfOff, WsfDefault,
     // --- WSF Identifier (fallback — MUST be LAST) ---
     WsfIdentifier,
 ];
@@ -187,15 +190,9 @@ const scriptKeywords = [
 // ---------------------------------------------------------------------------
 const SCRIPT_MODE_TOKENS = [
     ...sharedTokensForMode,
-    // Script exit keywords (pop_mode) — longer patterns first
-    EndOnInitialize,
-    EndOnNewExecute, EndOnNewFail,
-    EndOnTrackDrop, EndOnMessage,
+    // Script exit keywords (pop_mode) — pure script only
     EndScriptVariables,
-    EndPrecondition, EndNextState,
-    EndOnUpdate, EndOnEntry, EndOnExit,
-    EndOnInit, EndOnBingo, EndOnEmpty,
-    EndOnRefuel, EndOnReserve,
+    EndPrecondition,
     EndExecute,
     EndScript, // Also needed for script blocks with custom types (ScriptStmtEntry fallback)
     ...scriptOperatorsAndPunctuation,

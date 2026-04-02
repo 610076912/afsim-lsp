@@ -1,15 +1,13 @@
 import { tokenMatcher } from "chevrotain";
 import { ScriptFuncEntry, ScriptStmtEntry, ExecuteScriptEntry } from "../lexer/custom-matchers.js";
-import { EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage, EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel, EndOnReserve, EndOnNewExecute, EndOnNewFail, EndPrecondition, EndNextState, EndScriptVariables, EndExecute, EndScript, } from "../lexer/script-tokens.js";
-import { WsfBlockOpen, WsfBlockClose, ScriptEntryCategory, OnInitialize, OnUpdate, OnEntry, OnExit, OnMessage, OnInit, OnTrackDrop, OnBingo, OnEmpty, OnRefuel, OnReserve, OnNewExecute, OnNewFail, Precondition, NextState, ScriptVariables, } from "../lexer/wsf-tokens.js";
+import { EndPrecondition, EndScriptVariables, EndExecute, EndScript, } from "../lexer/script-tokens.js";
+import { WsfBlockOpen, WsfBlockClose, ScriptEntryCategory, Precondition, ScriptVariables, } from "../lexer/wsf-tokens.js";
 // ============================================================================
 // Script entry/exit token sets
 // ============================================================================
-/** All token types that push to SCRIPT_MODE (statement blocks) */
+/** All token types that push to SCRIPT_MODE (pure script blocks only) */
 const SCRIPT_STMT_ENTRY_TOKENS = new Set([
-    OnInitialize, OnUpdate, OnEntry, OnExit, OnMessage, OnInit,
-    OnTrackDrop, OnBingo, OnEmpty, OnRefuel, OnReserve,
-    OnNewExecute, OnNewFail, Precondition, NextState, ScriptVariables,
+    Precondition, ScriptVariables,
     ExecuteScriptEntry,
     ScriptStmtEntry, // Statement block form of `script`
 ]);
@@ -17,12 +15,9 @@ const SCRIPT_STMT_ENTRY_TOKENS = new Set([
 const SCRIPT_FUNC_ENTRY_TOKENS = new Set([
     ScriptFuncEntry, // Function definition form of `script`
 ]);
-/** All token types that pop from script modes */
+/** All token types that pop from script modes (pure script only) */
 const SCRIPT_EXIT_TOKENS = new Set([
-    EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage,
-    EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel,
-    EndOnReserve, EndOnNewExecute, EndOnNewFail, EndPrecondition,
-    EndNextState, EndScriptVariables, EndExecute, EndScript,
+    EndPrecondition, EndScriptVariables, EndExecute, EndScript,
 ]);
 /**
  * Extracts all script token slices from a flat token array.

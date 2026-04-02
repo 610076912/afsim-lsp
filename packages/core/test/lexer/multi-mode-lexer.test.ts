@@ -132,9 +132,9 @@ describe("WSF_MODE Tokens", () => {
     ]);
   });
 
-  it("should lex boolean keywords", () => {
+  it("should lex boolean keywords as identifiers (降维后)", () => {
     const names = tokenNames("true false");
-    expect(names).toEqual(["WsfTrue", "WsfFalse"]);
+    expect(names).toEqual(["WsfIdentifier", "WsfIdentifier"]);
   });
 
   it("should lex identifiers for unknown words", () => {
@@ -156,64 +156,68 @@ describe("WSF_MODE Tokens", () => {
 // Mode transition tests
 // ============================================================================
 
-describe("Mode Transitions — Script Entry/Exit", () => {
-  it("should push to SCRIPT_MODE on on_initialize and pop on end_on_initialize", () => {
+describe("Mode Transitions — WSF Container Blocks", () => {
+  it("should keep OnInitialize in WSF_MODE (not push to script mode)", () => {
     const input = `on_initialize
-  int x = 5;
+  update_interval 0.1
 end_on_initialize`;
     const names = tokenNames(input);
+    // OnXXX are now WSF containers, tokens inside are WSF tokens
     expect(names).toEqual([
       "OnInitialize",
-      "ScriptInt", "ScriptIdentifier", "Assign", "IntegerLiteral", "Semicolon",
+      "WsfIdentifier", "RealLiteral",  // update_interval 0.1 as WSF command
       "EndOnInitialize",
     ]);
   });
 
-  it("should push to SCRIPT_MODE on on_update and pop on end_on_update", () => {
-    const input = `on_update
-  double val = 3.14;
-  return;
-end_on_update`;
+  it("should handle pure script blocks inside OnXXX containers", () => {
+    const input = `on_initialize
+  precondition
+    return true;
+  end_precondition
+end_on_initialize`;
     const names = tokenNames(input);
+    // Precondition pushes to SCRIPT_MODE, but OnInitialize doesn't
     expect(names).toEqual([
-      "OnUpdate",
-      "ScriptDouble", "ScriptIdentifier", "Assign", "RealLiteral", "Semicolon",
-      "ScriptReturn", "Semicolon",
-      "EndOnUpdate",
+      "OnInitialize",
+      "Precondition",
+      "ScriptReturn", "ScriptTrue", "Semicolon",
+      "EndPrecondition",
+      "EndOnInitialize",
     ]);
   });
 
-  it("should handle on_entry / end_on_entry", () => {
+  it("should handle on_entry / end_on_entry as WSF container", () => {
     const input = `on_entry
-  break;
+  timeout_ms 5000
 end_on_entry`;
     const names = tokenNames(input);
     expect(names).toEqual([
       "OnEntry",
-      "ScriptBreak", "Semicolon",
+      "WsfIdentifier", "IntegerLiteral",  // timeout_ms 5000
       "EndOnEntry",
     ]);
   });
 
-  it("should return to WSF_MODE after script exit", () => {
+  it("should return to WSF_MODE after OnXXX block exit", () => {
     const input = `on_initialize
-  int x = 1;
+  interval 0.1
 end_on_initialize
 sensor MySensor end_sensor`;
     const names = tokenNames(input);
     expect(names).toEqual([
       "OnInitialize",
-      "ScriptInt", "ScriptIdentifier", "Assign", "IntegerLiteral", "Semicolon",
+      "WsfIdentifier", "RealLiteral",
       "EndOnInitialize",
       "Sensor", "WsfIdentifier", "EndSensor",
     ]);
   });
 
-  it("should handle nested WSF blocks with script entries", () => {
+  it("should handle nested WSF blocks with OnXXX containers", () => {
     const input = `platform_type MyPlat
   sensor MySensor
     on_initialize
-      int x = 0;
+      timeout_ms 5000
     end_on_initialize
   end_sensor
 end_platform_type`;
@@ -222,7 +226,7 @@ end_platform_type`;
       "PlatformType", "WsfIdentifier",
       "Sensor", "WsfIdentifier",
       "OnInitialize",
-      "ScriptInt", "ScriptIdentifier", "Assign", "IntegerLiteral", "Semicolon",
+      "WsfIdentifier", "IntegerLiteral",  // timeout_ms 5000
       "EndOnInitialize",
       "EndSensor",
       "EndPlatformType",
@@ -236,7 +240,7 @@ end_platform_type`;
 
 describe("SCRIPT_MODE Tokens", () => {
   it("should lex control flow keywords", () => {
-    const input = `on_initialize
+    const input = `precondition
   if (x == 1) {
     while (true) {
       break;
@@ -244,7 +248,7 @@ describe("SCRIPT_MODE Tokens", () => {
   } else {
     continue;
   }
-end_on_initialize`;
+end_precondition`;
     const names = tokenNames(input);
     expect(names).toContain("ScriptIf");
     expect(names).toContain("ScriptElse");
@@ -254,10 +258,10 @@ end_on_initialize`;
   });
 
   it("should lex for/foreach loops", () => {
-    const input = `on_initialize
+    const input = `precondition
   for (int i = 0; i < 10; i += 1) {}
   foreach (int x in myList) {}
-end_on_initialize`;
+end_precondition`;
     const names = tokenNames(input);
     expect(names).toContain("ScriptFor");
     expect(names).toContain("ScriptForeach");
@@ -265,13 +269,13 @@ end_on_initialize`;
   });
 
   it("should lex type keywords", () => {
-    const input = `on_initialize
+    const input = `precondition
   int a = 0;
   double b = 1.0;
   string c = "hello";
   bool d = true;
   char e = 'x';
-end_on_initialize`;
+end_precondition`;
     const names = tokenNames(input);
     expect(names).toContain("ScriptInt");
     expect(names).toContain("ScriptDouble");
@@ -281,14 +285,14 @@ end_on_initialize`;
   });
 
   it("should lex all operators", () => {
-    const input = `on_initialize
+    const input = `precondition
   x == y; x != y; x >= y; x <= y;
   x && y; x || y;
   x += 1; x -= 1; x *= 2; x /= 2;
   x = y; x + y; x - y; x * y; x / y;
   obj->method();
   obj.field;
-end_on_initialize`;
+end_precondition`;
     const names = tokenNames(input);
     expect(names).toContain("EqEq");
     expect(names).toContain("NotEq");
@@ -306,21 +310,21 @@ end_on_initialize`;
   });
 
   it("should lex null and NULL as ScriptNull", () => {
-    const input = `on_initialize
+    const input = `precondition
   x = null;
   y = NULL;
-end_on_initialize`;
+end_precondition`;
     const tokens = lex(input);
     const nullTokens = tokens.filter((t) => t.tokenType === ScriptNull);
     expect(nullTokens).toHaveLength(2);
   });
 
   it("should lex storage class specifiers", () => {
-    const input = `on_initialize
+    const input = `precondition
   global int g = 0;
   static double s = 1.0;
   extern int e;
-end_on_initialize`;
+end_precondition`;
     const names = tokenNames(input);
     expect(names).toContain("ScriptGlobal");
     expect(names).toContain("ScriptStatic");
@@ -422,19 +426,19 @@ end_on_initialize2`;
   });
 
   it("should lex multiple script blocks in sequence", () => {
-    const input = `on_initialize
+    const input = `precondition
   int a = 1;
-end_on_initialize
-on_update
+end_precondition
+script_variables
   double b = 2.0;
-end_on_update`;
+end_script_variables`;
     const result = lexFull(input);
     expect(result.errors).toHaveLength(0);
     const names = tokenNames(input);
-    expect(names).toContain("OnInitialize");
-    expect(names).toContain("EndOnInitialize");
-    expect(names).toContain("OnUpdate");
-    expect(names).toContain("EndOnUpdate");
+    expect(names).toContain("Precondition");
+    expect(names).toContain("EndPrecondition");
+    expect(names).toContain("ScriptVariables");
+    expect(names).toContain("EndScriptVariables");
   });
 
   it("should produce no lexer errors for well-formed mixed WSF+Script", () => {
@@ -445,9 +449,9 @@ end_on_update`;
         return v * 2;
       }
     end_script
-    on_initialize
-      int x = helper(5);
-    end_on_initialize
+    precondition
+      return helper(5) > 0;
+    end_precondition
   end_processor
 end_platform_type`;
     const result = lexFull(input);

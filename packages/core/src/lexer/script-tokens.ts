@@ -7,97 +7,13 @@ import { createToken } from "chevrotain";
 // ============================================================================
 
 // ---------------------------------------------------------------------------
-// Script Exit Keywords — pop back to WSF_MODE
+// Script Exit Keywords — pop back to WSF_MODE (pure script only)
 // These end_* tokens are only recognized inside script modes
 // ---------------------------------------------------------------------------
-
-export const EndOnInitialize = createToken({
-  name: "EndOnInitialize",
-  pattern: /end_on_initialize2?(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnUpdate = createToken({
-  name: "EndOnUpdate",
-  pattern: /end_on_update(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnEntry = createToken({
-  name: "EndOnEntry",
-  pattern: /end_on_entry(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnExit = createToken({
-  name: "EndOnExit",
-  pattern: /end_on_exit(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnMessage = createToken({
-  name: "EndOnMessage",
-  pattern: /end_on_message(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnInit = createToken({
-  name: "EndOnInit",
-  pattern: /end_on_init(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnTrackDrop = createToken({
-  name: "EndOnTrackDrop",
-  pattern: /end_on_track_drop(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnBingo = createToken({
-  name: "EndOnBingo",
-  pattern: /end_on_bingo(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnEmpty = createToken({
-  name: "EndOnEmpty",
-  pattern: /end_on_empty(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnRefuel = createToken({
-  name: "EndOnRefuel",
-  pattern: /end_on_refuel(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnReserve = createToken({
-  name: "EndOnReserve",
-  pattern: /end_on_reserve(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnNewExecute = createToken({
-  name: "EndOnNewExecute",
-  pattern: /end_on_new_execute(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndOnNewFail = createToken({
-  name: "EndOnNewFail",
-  pattern: /end_on_new_fail(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
 
 export const EndPrecondition = createToken({
   name: "EndPrecondition",
   pattern: /end_precondition(?![A-Za-z0-9_])/,
-  pop_mode: true,
-});
-
-export const EndNextState = createToken({
-  name: "EndNextState",
-  pattern: /end_next_state(?![A-Za-z0-9_])/,
   pop_mode: true,
 });
 

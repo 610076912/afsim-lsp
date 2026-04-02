@@ -1,8 +1,15 @@
 import * as vscode from "vscode";
-import { DocumentStateManager, computeDiagnostics, computeDocumentSymbols, computeFoldingRanges, computeCompletions, DiagnosticSeverity as CoreSeverity, SymbolKind as CoreSymbolKind, } from "@afsim-lsp/core";
+import { DocumentStateManager, computeDiagnostics, computeDocumentSymbols, computeFoldingRanges, computeCompletions, DiagnosticSeverity as CoreSeverity, SymbolKind as CoreSymbolKind, TraceLogger, } from "@afsim-lsp/core";
 const stateManager = new DocumentStateManager();
 let diagnosticCollection;
 export function activate(context) {
+    // 创建 OutputChannel 用于日志输出
+    const outputChannel = vscode.window.createOutputChannel("AFSIM LSP");
+    context.subscriptions.push(outputChannel);
+    // 绑定 TraceLogger 的 remoteConsole
+    TraceLogger.setRemoteConsole({
+        log: (msg) => outputChannel.appendLine(msg),
+    });
     diagnosticCollection = vscode.languages.createDiagnosticCollection("afsim");
     context.subscriptions.push(diagnosticCollection);
     // --- Document lifecycle ---

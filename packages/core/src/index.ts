@@ -16,3 +16,5 @@ export type {
 } from "./lsp/index.js";
 // Data layer
 export * from "./data/index.js";
+// Infrastructure
+export { TraceLogger, LogLevel } from "./infra/logger.js";

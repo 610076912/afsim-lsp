@@ -37,9 +37,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses a simple variable declaration", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_initialize
+        precondition
           int x = 42;
-        end_on_initialize
+        end_precondition
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -50,11 +50,11 @@ describe("ScriptParser — scriptBody", () => {
   it("parses multiple statements", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_initialize
+        precondition
           int x = 10;
           double y = 3.14;
           string s = "hello";
-        end_on_initialize
+        end_precondition
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -233,10 +233,10 @@ describe("ScriptParser — scriptBody", () => {
   it("parses global and static variable declarations", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_initialize
+        precondition
           global int counter = 0;
           static double rate = 1.5;
-        end_on_initialize
+        end_precondition
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -246,9 +246,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses initializer list", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_initialize
+        precondition
           Array items = {1, 2, 3};
-        end_on_initialize
+        end_precondition
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -257,9 +257,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses multiple variable declarations in one line", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_initialize
+        precondition
           int a, b = 5, c;
-        end_on_initialize
+        end_precondition
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -268,8 +268,8 @@ describe("ScriptParser — scriptBody", () => {
   it("parses empty body", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_initialize
-        end_on_initialize
+        precondition
+        end_precondition
       end_processor
     `);
     expect(errors).toHaveLength(0);

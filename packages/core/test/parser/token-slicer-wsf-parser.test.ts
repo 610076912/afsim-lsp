@@ -29,53 +29,58 @@ function sliceAndParse(input: string) {
 // ============================================================================
 
 describe("Token Slicer", () => {
-  it("should extract a single script block", () => {
+  it("should keep OnXXX blocks in WSF stream (they are WSF containers)", () => {
     const tokens = tokenize(`on_initialize
-  int x = 5;
+  update_interval 0.1
 end_on_initialize`);
 
     const { slices, wsfTokens } = sliceTokens(tokens);
-    expect(slices).toHaveLength(1);
-    expect(slices[0].entryToken.tokenType.name).toBe("OnInitialize");
-    expect(slices[0].exitToken?.tokenType.name).toBe("EndOnInitialize");
-    expect(slices[0].isFuncBlock).toBe(false);
-    expect(slices[0].bodyTokens.length).toBeGreaterThan(0);
-
-    // WSF stream should have entry + exit tokens only
-    expect(wsfTokens).toHaveLength(2);
+    // OnInitialize is a WSF container, not a script slice
+    expect(slices).toHaveLength(0);
+    
+    // WSF stream should have all tokens
+    expect(wsfTokens).toHaveLength(3);
     expect(wsfTokens[0].tokenType.name).toBe("OnInitialize");
-    expect(wsfTokens[1].tokenType.name).toBe("EndOnInitialize");
+    expect(wsfTokens[1].tokenType.name).toBe("WsfIdentifier");
+    expect(wsfTokens[2].tokenType.name).toBe("EndOnInitialize");
   });
 
-  it("should extract multiple script blocks", () => {
+  it("should extract pure script blocks inside OnXXX containers", () => {
     const tokens = tokenize(`on_initialize
-  int x = 1;
-end_on_initialize
-on_update
-  double y = 2.0;
-end_on_update`);
+  precondition
+    return true;
+  end_precondition
+end_on_initialize`);
 
     const { slices, wsfTokens } = sliceTokens(tokens);
-    expect(slices).toHaveLength(2);
-    expect(slices[0].entryToken.tokenType.name).toBe("OnInitialize");
-    expect(slices[1].entryToken.tokenType.name).toBe("OnUpdate");
+    // Should extract the precondition block as a script slice
+    expect(slices).toHaveLength(1);
+    expect(slices[0].entryToken.tokenType.name).toBe("Precondition");
+    expect(slices[0].exitToken?.tokenType.name).toBe("EndPrecondition");
+    
+    // WSF stream should have OnInitialize, EndOnInitialize, and Precondition/EndPrecondition placeholders
+    expect(wsfTokens.length).toBeGreaterThan(0);
   });
 
-  it("should preserve WSF tokens between script blocks", () => {
+  it("should preserve WSF tokens for OnXXX blocks", () => {
     const tokens = tokenize(`platform_type MyPlat
   on_initialize
-    int x = 0;
+    update_interval 0.1
   end_on_initialize
 end_platform_type`);
 
     const { slices, wsfTokens } = sliceTokens(tokens);
-    expect(slices).toHaveLength(1);
-
-    // WSF tokens should be: PlatformType MyPlat OnInitialize EndOnInitialize EndPlatformType
+    // No script slices (OnInitialize is a WSF container)
+    expect(slices).toHaveLength(0);
+    
+    // All tokens remain in WSF stream
     const wsfNames = wsfTokens.map(t => t.tokenType.name);
     expect(wsfNames).toEqual([
       "PlatformType", "WsfIdentifier",
-      "OnInitialize", "EndOnInitialize",
+      "OnInitialize",
+      "WsfIdentifier",  // update_interval
+      "RealLiteral",    // 0.1
+      "EndOnInitialize",
       "EndPlatformType",
     ]);
   });
@@ -92,14 +97,15 @@ end_script`);
     expect(slices[0].exitToken?.tokenType.name).toBe("EndScript");
   });
 
-  it("should infer context type from enclosing block", () => {
+  it("should infer context type from enclosing OnXXX block", () => {
     const tokens = tokenize(`processor MyProc WSF_SCRIPT_PROCESSOR
-  on_initialize
-    int x = 0;
-  end_on_initialize
+  precondition
+    return true;
+  end_precondition
 end_processor`);
 
     const { slices } = sliceTokens(tokens);
+    // Should extract the precondition with Processor context
     expect(slices).toHaveLength(1);
     expect(slices[0].contextTag).toBe("Processor");
   });
@@ -115,15 +121,15 @@ end_platform_type`);
     expect(wsfTokens).toHaveLength(tokens.length);
   });
 
-  it("should extract correct body tokens", () => {
-    const tokens = tokenize(`on_initialize
-  int x = 5;
-end_on_initialize`);
+  it("should extract correct body tokens from precondition", () => {
+    const tokens = tokenize(`precondition
+  return true;
+end_precondition`);
 
     const { slices } = sliceTokens(tokens);
     const bodyNames = slices[0].bodyTokens.map(t => t.tokenType.name);
     expect(bodyNames).toEqual([
-      "ScriptInt", "ScriptIdentifier", "Assign", "IntegerLiteral", "Semicolon",
+      "ScriptReturn", "ScriptTrue", "Semicolon",
     ]);
   });
 });
@@ -156,15 +162,16 @@ end_platform_type`);
   it("should parse platform_type with processor and script placeholders", () => {
     const { parseErrors, slices } = sliceAndParse(`platform_type Fighter
   processor MyProc WSF_SCRIPT_PROCESSOR
-    on_initialize
+    precondition
+      return true;
+    end_precondition
+    script_variables
       int x = 0;
-    end_on_initialize
-    on_update
-      double y = 1.0;
-    end_on_update
+    end_script_variables
   end_processor
 end_platform_type`);
     expect(parseErrors).toHaveLength(0);
+    // Should extract precondition and script_variables as script slices
     expect(slices).toHaveLength(2);
   });
 

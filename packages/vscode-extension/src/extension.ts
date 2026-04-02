@@ -8,6 +8,7 @@ import {
   CompletionItemKind as CoreCompletionKind,
   DiagnosticSeverity as CoreSeverity,
   SymbolKind as CoreSymbolKind,
+  TraceLogger,
 } from "@afsim-lsp/core";
 import type {
   Diagnostic as CoreDiagnostic,
@@ -21,6 +22,15 @@ const stateManager = new DocumentStateManager();
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(context: vscode.ExtensionContext): void {
+  // 创建 OutputChannel 用于日志输出
+  const outputChannel = vscode.window.createOutputChannel("AFSIM LSP");
+  context.subscriptions.push(outputChannel);
+
+  // 绑定 TraceLogger 的 remoteConsole
+  TraceLogger.setRemoteConsole({
+    log: (msg: string) => outputChannel.appendLine(msg),
+  });
+
   diagnosticCollection = vscode.languages.createDiagnosticCollection("afsim");
   context.subscriptions.push(diagnosticCollection);
 

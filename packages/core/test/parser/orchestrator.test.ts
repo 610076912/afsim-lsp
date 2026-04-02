@@ -21,13 +21,13 @@ describe("Parse Orchestrator — parseDocument", () => {
     expect(result.wsfCst.name).toBe("wsfFile");
   });
 
-  it("parses a document with one script block (on_initialize)", () => {
+  it("parses a document with one script block (precondition)", () => {
     const result = parseDocument(`
       platform_type MyType
         processor myProc WSF_SCRIPT_PROCESSOR
-          on_initialize
-            int x = 42;
-          end_on_initialize
+          precondition
+            return true;
+          end_precondition
         end_processor
       end_platform_type
     `);
@@ -73,12 +73,12 @@ describe("Parse Orchestrator — parseDocument", () => {
           script
             void Init() { return; }
           end_script
-          on_initialize
+          precondition
             int x = 0;
-          end_on_initialize
-          on_update
-            x = x + 1;
-          end_on_update
+          end_precondition
+          script_variables
+            double y = 1.0;
+          end_script_variables
         end_processor
       end_platform_type
     `);
@@ -90,9 +90,9 @@ describe("Parse Orchestrator — parseDocument", () => {
     // script...end_script → scriptFuncDefs
     expect(entries[0].cst!.name).toBe("scriptFuncDefs");
     expect(entries[0].slice.isFuncBlock).toBe(true);
-    // on_initialize → scriptBody
+    // precondition → scriptBody
     expect(entries[1].cst!.name).toBe("scriptBody");
-    // on_update → scriptBody
+    // script_variables → scriptBody
     expect(entries[2].cst!.name).toBe("scriptBody");
 
     for (const e of entries) {
@@ -104,9 +104,9 @@ describe("Parse Orchestrator — parseDocument", () => {
     const result = parseDocument(`
       platform_type MyType
         sensor mySensor WSF_SENSOR
-          on_update
+          script_variables
             double r = 100.0;
-          end_on_update
+          end_script_variables
         end_sensor
       end_platform_type
     `);
@@ -114,7 +114,7 @@ describe("Parse Orchestrator — parseDocument", () => {
     expect(result.scriptEntries.size).toBe(1);
 
     const [entryToken, cstEntry] = [...result.scriptEntries.entries()][0];
-    expect(entryToken.image).toMatch(/on_update/);
+    expect(entryToken.image).toMatch(/script_variables/);
     expect(cstEntry.slice.entryToken).toBe(entryToken);
     expect(cstEntry.slice.contextTag).toBe("Sensor");
   });
@@ -123,8 +123,8 @@ describe("Parse Orchestrator — parseDocument", () => {
     const result = parseDocument(`
       platform_type MyType
         processor myProc WSF_SCRIPT_PROCESSOR
-          on_initialize
-          end_on_initialize
+          precondition
+          end_precondition
         end_processor
       end_platform_type
     `);
@@ -151,9 +151,9 @@ describe("Parse Orchestrator — parseDocument", () => {
     const result = parseDocument(`
       platform_type MyType
         processor myProc WSF_SCRIPT_PROCESSOR
-          on_update
-            int y = 5;
-          end_on_update
+          precondition
+            return true;
+          end_precondition
         end_processor
       end_platform_type
     `);
@@ -173,14 +173,14 @@ describe("Parse Orchestrator — parseDocument", () => {
               return false;
             }
           end_script
-          on_update
+          precondition
             foreach (WsfTrack track in GetTracks()) {
               if (CheckTarget(track)) {
-                Engage(track);
-                break;
+                return true;
               }
             }
-          end_on_update
+            return false;
+          end_precondition
         end_processor
       end_platform_type
     `);
@@ -197,14 +197,14 @@ describe("Parse Orchestrator — parseDocument", () => {
     const result = parseDocument(`
       platform_type Destroyer
         sensor radar WSF_SENSOR
-          on_update
-            double range = 150.0;
-          end_on_update
+          precondition
+            return true;
+          end_precondition
         end_sensor
         comm link WSF_COMM
-          on_initialize
+          script_variables
             string name = "link1";
-          end_on_initialize
+          end_script_variables
         end_comm
       end_platform_type
     `);

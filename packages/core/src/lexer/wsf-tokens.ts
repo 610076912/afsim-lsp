@@ -191,15 +191,12 @@ export const WsfAdd = createWsfToken("WsfAdd", "add");
 export const WsfEdit = createWsfToken("WsfEdit", "edit");
 export const WsfLoad = createWsfToken("WsfLoad", "load");
 export const WsfInclude = createWsfToken("WsfInclude", "include");
-export const WsfTrue = createWsfToken("WsfTrue", "true");
-export const WsfFalse = createWsfToken("WsfFalse", "false");
-export const WsfYes = createWsfToken("WsfYes", "yes");
-export const WsfNone = createWsfToken("WsfNone", "none");
-export const WsfNo = createWsfToken("WsfNo", "no", { longer_alt: WsfNone });
-export const WsfOn = createWsfToken("WsfOn", "on");
-export const WsfOff = createWsfToken("WsfOff", "off");
-export const WsfDefault = createWsfToken("WsfDefault", "default");
 export const WsfEndTime = createWsfToken("WsfEndTime", "end_time");
+
+// NOTE: WsfTrue, WsfFalse, WsfYes, WsfNo, WsfOn, WsfOff, WsfNone, WsfDefault
+// have been removed. These are now matched as plain WsfIdentifier tokens.
+// This allows commands like "on", "off", "none", "default", "true", "false", "yes", "no"
+// to be parsed correctly by wsfCommand.
 
 // ============================================================================
 // WSF Block End Keywords
@@ -337,25 +334,49 @@ export const EndFusionMethod = createWsfToken("EndFusionMethod", "end_fusion_met
 export const EndFile = createWsfToken("EndFile", "end_file", { categories: WsfBlockClose });
 
 // ============================================================================
-// Script Entry Keywords — push to SCRIPT_MODE
+// WSF Container Exit Keywords — NO pop_mode, these are WSF block closes
+// All OnXXX event handlers and next_state (defined here to avoid circular deps)
 // ============================================================================
 
-export const OnInitialize = createWsfToken("OnInitialize", "on_initialize2?", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnUpdate = createWsfToken("OnUpdate", "on_update", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnEntry = createWsfToken("OnEntry", "on_entry", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnExit = createWsfToken("OnExit", "on_exit", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnMessage = createWsfToken("OnMessage", "on_message", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnInit = createWsfToken("OnInit", "on_init", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnTrackDrop = createWsfToken("OnTrackDrop", "on_track_drop", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnBingo = createWsfToken("OnBingo", "on_bingo", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnEmpty = createWsfToken("OnEmpty", "on_empty", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnRefuel = createWsfToken("OnRefuel", "on_refuel", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnReserve = createWsfToken("OnReserve", "on_reserve", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnNewExecute = createWsfToken("OnNewExecute", "on_new_execute", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const OnNewFail = createWsfToken("OnNewFail", "on_new_fail", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
+export const EndOnInitialize = createWsfToken("EndOnInitialize", "end_on_initialize2?", { categories: WsfBlockClose });
+export const EndOnUpdate = createWsfToken("EndOnUpdate", "end_on_update", { categories: WsfBlockClose });
+export const EndOnEntry = createWsfToken("EndOnEntry", "end_on_entry", { categories: WsfBlockClose });
+export const EndOnExit = createWsfToken("EndOnExit", "end_on_exit", { categories: WsfBlockClose });
+export const EndOnMessage = createWsfToken("EndOnMessage", "end_on_message", { categories: WsfBlockClose });
+export const EndOnInit = createWsfToken("EndOnInit", "end_on_init", { categories: WsfBlockClose });
+export const EndOnTrackDrop = createWsfToken("EndOnTrackDrop", "end_on_track_drop", { categories: WsfBlockClose });
+export const EndOnBingo = createWsfToken("EndOnBingo", "end_on_bingo", { categories: WsfBlockClose });
+export const EndOnEmpty = createWsfToken("EndOnEmpty", "end_on_empty", { categories: WsfBlockClose });
+export const EndOnRefuel = createWsfToken("EndOnRefuel", "end_on_refuel", { categories: WsfBlockClose });
+export const EndOnReserve = createWsfToken("EndOnReserve", "end_on_reserve", { categories: WsfBlockClose });
+export const EndOnNewExecute = createWsfToken("EndOnNewExecute", "end_on_new_execute", { categories: WsfBlockClose });
+export const EndOnNewFail = createWsfToken("EndOnNewFail", "end_on_new_fail", { categories: WsfBlockClose });
+export const EndNextState = createWsfToken("EndNextState", "end_next_state", { categories: WsfBlockClose });
+
+// ============================================================================
+// Script Entry Keywords — push to SCRIPT_MODE
+// PURE SCRIPT ONLY: script_variables, precondition, + custom matchers (script, execute)
+// ============================================================================
+
 export const Precondition = createWsfToken("Precondition", "precondition", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
-export const NextState = createWsfToken("NextState", "next_state", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
 export const ScriptVariables = createWsfToken("ScriptVariables", "script_variables", { push_mode: "SCRIPT_MODE", categories: ScriptEntryCategory });
+
+// WSF Container Keywords — NO push_mode, these are WSF blocks that can contain commands
+// All OnXXX event handlers and next_state
+export const OnInitialize = createWsfToken("OnInitialize", "on_initialize2?", { categories: WsfBlockOpen });
+export const OnUpdate = createWsfToken("OnUpdate", "on_update", { categories: WsfBlockOpen });
+export const OnEntry = createWsfToken("OnEntry", "on_entry", { categories: WsfBlockOpen });
+export const OnExit = createWsfToken("OnExit", "on_exit", { categories: WsfBlockOpen });
+export const OnMessage = createWsfToken("OnMessage", "on_message", { categories: WsfBlockOpen });
+export const OnInit = createWsfToken("OnInit", "on_init", { categories: WsfBlockOpen });
+export const OnTrackDrop = createWsfToken("OnTrackDrop", "on_track_drop", { categories: WsfBlockOpen });
+export const OnBingo = createWsfToken("OnBingo", "on_bingo", { categories: WsfBlockOpen });
+export const OnEmpty = createWsfToken("OnEmpty", "on_empty", { categories: WsfBlockOpen });
+export const OnRefuel = createWsfToken("OnRefuel", "on_refuel", { categories: WsfBlockOpen });
+export const OnReserve = createWsfToken("OnReserve", "on_reserve", { categories: WsfBlockOpen });
+export const OnNewExecute = createWsfToken("OnNewExecute", "on_new_execute", { categories: WsfBlockOpen });
+export const OnNewFail = createWsfToken("OnNewFail", "on_new_fail", { categories: WsfBlockOpen });
+export const NextState = createWsfToken("NextState", "next_state", { categories: WsfBlockOpen });
 
 // `execute` and `script` need custom matchers — see custom-matchers.ts
 // They are created there and imported into multi-mode-lexer.ts

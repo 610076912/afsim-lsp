@@ -23,8 +23,7 @@ import {
   Conditionals, Classification, ClassificationLevels, Group,
   Draw, NoisyCloud, DetectionThresholds, DetectionProbability,
   FusionMethod,
-  WsfAdd, WsfEdit, WsfLoad, WsfInclude, WsfTrue, WsfFalse,
-  WsfYes, WsfNo, WsfOn, WsfOff, WsfNone, WsfDefault, WsfEndTime,
+  WsfAdd, WsfEdit, WsfLoad, WsfInclude, WsfEndTime,
   EndPlatformType, EndPlatform, EndSensor, EndProcessor,
   EndComm, EndNetwork, EndRouter, EndMover, EndFuel,
   EndZone, EndZoneSet, EndRoute, EndRouteNetwork,
@@ -53,12 +52,14 @@ import {
   OnTrackDrop, OnBingo, OnEmpty, OnRefuel, OnReserve,
   OnNewExecute, OnNewFail, Precondition, NextState, ScriptVariables,
   WsfIdentifier,
-} from "./wsf-tokens.js";
-import {
+  // WSF Container Block End keywords (OnXXX event handlers)
   EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage,
   EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel,
-  EndOnReserve, EndOnNewExecute, EndOnNewFail, EndPrecondition,
-  EndNextState, EndScriptVariables, EndExecute, EndScript,
+  EndOnReserve, EndOnNewExecute, EndOnNewFail, EndNextState,
+} from "./wsf-tokens.js";
+import {
+  // Pure script exit tokens
+  EndPrecondition, EndScriptVariables, EndExecute, EndScript,
   ScriptIf, ScriptElse, ScriptWhile, ScriptDo, ScriptFor,
   ScriptForeach, ScriptIn, ScriptBreak, ScriptContinue, ScriptReturn,
   ScriptNull, ScriptTrue, ScriptFalse,
@@ -114,9 +115,6 @@ EndErrorModel.LONGER_ALT = EndErrorModelParameters;
 EndClassification.LONGER_ALT = EndClassificationLevels;
 EndZone.LONGER_ALT = EndZoneSet;
 EndConnections.LONGER_ALT = EndEditConnections;
-
-// WSF misc
-WsfNo.LONGER_ALT = WsfNone;
 
 // Script keywords
 ScriptDo.LONGER_ALT = ScriptDouble;
@@ -189,6 +187,11 @@ const WSF_MODE_TOKENS: TokenType[] = [
   EndGroup, EndDraw, EndNoisyCloud,
   EndFusionMethod, EndFile,
 
+  // --- WSF Container Block End keywords (OnXXX event handlers) ---
+  EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage,
+  EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel,
+  EndOnReserve, EndOnNewExecute, EndOnNewFail, EndNextState,
+
   // --- Script entry keywords (push_mode) ---
   OnInitialize,
   OnUpdate, OnEntry, OnExit, OnMessage,
@@ -236,9 +239,6 @@ const WSF_MODE_TOKENS: TokenType[] = [
   // --- WSF misc keywords (longer before shorter) ---
   WsfEndTime,
   WsfAdd, WsfEdit, WsfLoad, WsfInclude,
-  WsfTrue, WsfFalse, WsfYes,
-  WsfNone, WsfNo,   // none before no
-  WsfOn, WsfOff, WsfDefault,
 
   // --- WSF Identifier (fallback — MUST be LAST) ---
   WsfIdentifier,
@@ -279,15 +279,9 @@ const scriptKeywords: TokenType[] = [
 const SCRIPT_MODE_TOKENS: TokenType[] = [
   ...sharedTokensForMode,
 
-  // Script exit keywords (pop_mode) — longer patterns first
-  EndOnInitialize,
-  EndOnNewExecute, EndOnNewFail,
-  EndOnTrackDrop, EndOnMessage,
+  // Script exit keywords (pop_mode) — pure script only
   EndScriptVariables,
-  EndPrecondition, EndNextState,
-  EndOnUpdate, EndOnEntry, EndOnExit,
-  EndOnInit, EndOnBingo, EndOnEmpty,
-  EndOnRefuel, EndOnReserve,
+  EndPrecondition,
   EndExecute,
   EndScript,  // Also needed for script blocks with custom types (ScriptStmtEntry fallback)
 
