@@ -16,6 +16,8 @@ import { TraceLogger } from "../infra/logger.js";
 // ============================================================================
 // Collect all token types used by the WSF parser for the constructor
 const allWsfTokenTypes = [
+    // Abstract category tokens — MUST be included for correct OR lookahead resolution
+    WsfBlockOpen, WsfBlockClose, ScriptEntryCategory,
     // Shared tokens
     WhiteSpace, BlockComment, LineComment, HashComment,
     StringLiteral, CharLiteral, RealLiteral, IntegerLiteral,
