@@ -39,10 +39,11 @@ end_on_initialize`);
     expect(slices).toHaveLength(0);
     
     // WSF stream should have all tokens
-    expect(wsfTokens).toHaveLength(3);
+    expect(wsfTokens).toHaveLength(4);
     expect(wsfTokens[0].tokenType.name).toBe("OnInitialize");
     expect(wsfTokens[1].tokenType.name).toBe("WsfIdentifier");
-    expect(wsfTokens[2].tokenType.name).toBe("EndOnInitialize");
+    expect(wsfTokens[2].tokenType.name).toBe("RealLiteral");
+    expect(wsfTokens[3].tokenType.name).toBe("EndOnInitialize");
   });
 
   it("should extract pure script blocks inside OnXXX containers", () => {

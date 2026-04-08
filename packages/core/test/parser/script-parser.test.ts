@@ -64,13 +64,13 @@ describe("ScriptParser — scriptBody", () => {
   it("parses if/else statement", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           if (x > 0) {
             y = 1;
           } else {
             y = 0;
           }
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -81,11 +81,11 @@ describe("ScriptParser — scriptBody", () => {
   it("parses while loop", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           while (i < 10) {
             i = i + 1;
           }
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -95,11 +95,11 @@ describe("ScriptParser — scriptBody", () => {
   it("parses for loop", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           for (i = 0; i < 10; i = i + 1) {
             DoSomething();
           }
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -109,11 +109,11 @@ describe("ScriptParser — scriptBody", () => {
   it("parses foreach loop", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           foreach (WsfTrack track in tracks) {
             track.Drop();
           }
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -123,11 +123,11 @@ describe("ScriptParser — scriptBody", () => {
   it("parses do-while loop", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           do {
             count = count - 1;
           } while (count > 0);
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -137,9 +137,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses return statement", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           return;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -149,9 +149,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses return with value", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           return x + 1;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -160,14 +160,14 @@ describe("ScriptParser — scriptBody", () => {
   it("parses break and continue", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           while (true) {
             if (done) {
               break;
             }
             continue;
           }
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -176,9 +176,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses method call chain", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           platform.Track(0).Position().Latitude();
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -187,9 +187,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses assignment expression", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           x = y + z * 2;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -198,9 +198,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses complex expression with operators", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           bool result = (a > 0 && b < 10) || c == 5;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -209,9 +209,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses array indexing", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           arr[0] = arr[1] + arr[2];
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -220,10 +220,10 @@ describe("ScriptParser — scriptBody", () => {
   it("parses unary operators", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           int neg = -x;
           bool notB = !flag;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -279,7 +279,7 @@ describe("ScriptParser — scriptBody", () => {
   it("parses nested blocks", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           if (x > 0) {
             while (y < 10) {
               if (z == 0) {
@@ -288,7 +288,7 @@ describe("ScriptParser — scriptBody", () => {
               y = y + 1;
             }
           }
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -297,9 +297,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses arrow access (dynamic attributes)", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           obj->GetValue();
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -308,9 +308,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses string concatenation", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           string msg = "Hello " + name + "!";
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -319,9 +319,9 @@ describe("ScriptParser — scriptBody", () => {
   it("parses parenthesized expression", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           int val = (a + b) * (c - d);
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -427,9 +427,9 @@ describe("ScriptParser — expression edge cases", () => {
   it("parses chained comparison operators", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           bool r = a < b && b < c;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -438,9 +438,9 @@ describe("ScriptParser — expression edge cases", () => {
   it("parses xor expression", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           int r = a ^ b;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -449,12 +449,12 @@ describe("ScriptParser — expression edge cases", () => {
   it("parses compound assignment operators", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           x.val += 1;
           y.val -= 2;
           z.val *= 3;
           w.val /= 4;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -464,11 +464,11 @@ describe("ScriptParser — expression edge cases", () => {
   it("parses null and boolean literals", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           WsfTrack t = null;
           bool a = true;
           bool b = false;
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -478,9 +478,9 @@ describe("ScriptParser — expression edge cases", () => {
   it("parses deeply nested method call", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           a.b().c().d(1, "x").e();
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);
@@ -489,9 +489,9 @@ describe("ScriptParser — expression edge cases", () => {
   it("parses function call with multiple arguments", () => {
     const { cst, errors } = parseScriptBody(`
       processor foo WSF_SCRIPT_PROCESSOR
-        on_update
+        script
           DoSomething(a, b + c, "text", 42);
-        end_on_update
+        end_script
       end_processor
     `);
     expect(errors).toHaveLength(0);

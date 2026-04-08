@@ -8,7 +8,7 @@ import { createToken, Lexer, TokenType } from "chevrotain";
 // WSF Suffix Assertion — prevents "platform-type" being split into "platform" + "-type"
 // String with double backslash: "\\-\\/" becomes "\-\/" in the RegExp constructor
 // ---------------------------------------------------------------------------
-const WSF_SUFFIX_ASSERTION = "(?![A-Za-z0-9_\\-\\/])";
+const WSF_SUFFIX_ASSERTION = "(?![A-Za-z0-9_\\-\\/\\.\\$])";
 
 // ---------------------------------------------------------------------------
 // Helper: create WSF token with automatic suffix assertion
@@ -388,9 +388,16 @@ export const NextState = createWsfToken("NextState", "next_state", { categories:
 
 export const WsfIdentifier = createToken({
   name: "WsfIdentifier",
-  // Permissive: allows -, /, . for paths like "my-router", "version/1.0", etc.
-  pattern: /[a-zA-Z_][a-zA-Z0-9_\-\/\.]*/,
+  pattern: /[a-zA-Z_.$][a-zA-Z0-9_\-\/.\$\{\}:\<\>\(\)#]*/,
 });
+
+export const WsfCatchAllWord = createToken({
+  name: "WsfCatchAllWord",
+  pattern: /[^\s{}]+/,
+});
+
+export const WsfLBrace = createToken({ name: "WsfLBrace", pattern: /\{/ });
+export const WsfRBrace = createToken({ name: "WsfRBrace", pattern: /\}/ });
 
 // ============================================================================
 // Keyword sets for external use

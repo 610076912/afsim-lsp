@@ -51,7 +51,7 @@ import {
   OnInitialize, OnUpdate, OnEntry, OnExit, OnMessage, OnInit,
   OnTrackDrop, OnBingo, OnEmpty, OnRefuel, OnReserve,
   OnNewExecute, OnNewFail, Precondition, NextState, ScriptVariables,
-  WsfIdentifier,
+  WsfIdentifier, WsfCatchAllWord, WsfLBrace, WsfRBrace,
   // WSF Container Block End keywords (OnXXX event handlers)
   EndOnInitialize, EndOnUpdate, EndOnEntry, EndOnExit, EndOnMessage,
   EndOnInit, EndOnTrackDrop, EndOnBingo, EndOnEmpty, EndOnRefuel,
@@ -242,6 +242,8 @@ const WSF_MODE_TOKENS: TokenType[] = [
 
   // --- WSF Identifier (fallback — MUST be LAST) ---
   WsfIdentifier,
+  WsfLBrace, WsfRBrace,
+  WsfCatchAllWord,
 ];
 
 // ---------------------------------------------------------------------------
