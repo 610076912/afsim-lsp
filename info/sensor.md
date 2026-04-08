@@ -70,6 +70,34 @@ Most (but not all) sensors support the concept of 'modes'. A mode is a named set
 
 If multiple modes are to be used, a 'mode_template' can be defined that specifies the characteristics that are common between all modes. A 'mode_template' does not have to be defined, but if it is it must be defined prior to the first 'mode' command. If a 'mode_template' is used, the initial configuration for each mode is copied from the 'mode_template' and then any additions or modifications to the mode should appear between the applicable 'mode' and 'end_mode' commands.
 
+## Type: WSF_SENSOR_MODE
+
+### Overview
+
+`WSF_SENSOR_MODE` is the shared grammar base used by mode-capable sensor types such as `WSF_RADAR_SENSOR`, `WSF_PASSIVE_SENSOR`, `WSF_GEOMETRIC_SENSOR`, and composite sensor mode templates.
+
+In `wsf.ag`, this base collects the common per-mode commands for cueing, scheduling, error settings, track formation, and reporting flags. It is not instantiated directly as a top-level sensor type, but it is an important structural block when extracting sensor mode capabilities.
+
+### Common Grammar-Level Commands
+
+The `WSF_SENSOR_MODE` base includes the common mode commands already described in this file, including:
+
+- `azimuth_cue_rate`, `elevation_cue_rate`
+- `azimuth_cue_limits`, `elevation_cue_limits`
+- `cue_mode`
+- `maximum_request_count`
+- `enable_moon_los_block`
+- `search_while_track`, `disables_search`
+- `frame_time`, `revisit_time`, `dwell_time`
+- `required_pd`, `track_quality`
+- `error_model`
+- `azimuth_error_sigma`, `elevation_error_sigma`, `range_error_sigma`, `range_rate_error_sigma`
+- `establish_track_probability`, `maintain_track_probability`
+- `hits_to_establish_track`, `hits_to_maintain_track`
+- `solar_exclusion_angle`, `lunar_exclusion_angle`
+- `message_length`, `message_priority`
+- `reports_*` reporting flags such as `reports_location`, `reports_velocity`, `reports_range`, `reports_pw`, `reports_pri`
+
 ## Commands
 
 ### ignore
@@ -1516,6 +1544,22 @@ This sensor will not detect targets with a range rate less than this value.
 This sensor will not detect targets with a range rate greater than this value.
 
 **Default:** no maximum
+
+## Type: WSF_NULL_SENSOR
+
+### Overview
+
+`WSF_NULL_SENSOR` is the predefined null sensor type in `wsf.ag`.
+
+It derives directly from the base `Sensor` struct and adds no sensor-specific commands beyond the inherited common sensor command set. It is also the fallback base type used by the grammar when a sensor definition is created without a resolvable sensor type.
+
+### Syntax
+
+```wsf
+sensor <name> WSF_NULL_SENSOR
+   ... Sensor Commands ...
+end_sensor
+```
 
 ## Type: WSF_COMPOSITE_SENSOR
 

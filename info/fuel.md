@@ -22,6 +22,7 @@ fuel <new-type> <base-type>
    initial_quantity ...
    reserve_quantity ...
    mode ...
+   set_mode ...
 
    on_bingo ... end_on_bingo
    on_empty ... end_on_empty
@@ -101,6 +102,12 @@ Defines the threshold such that when the quantity of fuel remaining falls below 
 **Syntax:** `mode <mode-name>`
 
 Specifies the name of the mode to be used for fuel types that support modes.
+
+### set_mode
+
+**Syntax:** `set_mode <mode-name>`
+
+Sets the active fuel mode at input-processing time. This is defined in `wsf.ag` as a base fuel command alongside `mode`.
 
 ## Script Interface
 
@@ -300,7 +307,8 @@ fuel <name> WSF_VARIABLE_RATE_FUEL
    table_for_mode <mode-name>
    rates
       altitude <length-value>
-      speed <length-value> rate <mass-flow-value>
+      speed <speed-value>
+      rate <mass-flow-value>
    end_rates
 end_fuel
 ```
@@ -335,9 +343,15 @@ Specifies the altitude that the subsequent speed data is valid for. The altitude
 
 ##### speed
 
-**Syntax:** `speed <length-value> rate <mass-flow-value>`
+**Syntax:** `speed <speed-value>`
 
-Specifies the speed that the listed consumption rate is valid for. The speed entries must be in increasing numerical order. The consumption rate will be computed using a linear interpolation on the current altitude and speed.
+Specifies the speed that the subsequent rate entry applies to. The speed entries must be in increasing numerical order.
+
+##### rate
+
+**Syntax:** `rate <mass-flow-value>`
+
+Specifies the fuel consumption rate for the current altitude/speed entry. The consumption rate will be computed using a linear interpolation on the current altitude and speed.
 
 ## Type: WSF_TANKED_FUEL
 

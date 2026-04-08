@@ -341,6 +341,24 @@ processor <name> WSF_MESSAGE_PROCESSOR
 end_processor
 ```
 
+## Type: WSF_LINKED_SCRIPT_PROCESSOR
+
+**Derives From:** `WSF_SCRIPT_PROCESSOR`
+
+### Overview
+
+`WSF_LINKED_SCRIPT_PROCESSOR` is defined in `wsf.ag` as a direct subtype of `WSF_SCRIPT_PROCESSOR`.
+
+Unlike plain `WSF_SCRIPT_PROCESSOR`, this type exists explicitly in the predefined processor type set and should be included in type/reference inventories.
+
+### Syntax
+
+```wsf
+processor <name> WSF_LINKED_SCRIPT_PROCESSOR
+   ... WSF_SCRIPT_PROCESSOR Commands ...
+end_processor
+```
+
 ### Message Queuing Commands
 
 These commands define how messages are queued if they require a time_delay.
@@ -490,6 +508,24 @@ The first form where the recipient is a processor is currently the only one used
 `WSF_EXCHANGE_PROCESSOR` is a processor that manages the exchange of commodities or services with other simulated platforms. Three possible examples would be a tanker-to-receiver exchange of fuel, a warehouse which supplies spare parts to a mechanic who needs them, or that same mechanic which goes to a disabled vehicle to repair it and return it to service. An exchange is negotiated in a series of ping-pong negotiation events. The result is a mutually decided upon quantity of exchange, and optionally, a decided rate of transfer of that commodity or service. (If no rate is specified, the exchange rate defaults to zero, and is thus considered instantaneous.) If a non-zero rate is negotiated, both platforms understand the exchange is in-progress until the full amount is transacted, based upon time elapsed. In this case, either participant may cancel the transaction prematurely, and the transacted amount to the present time will be retained.
 
 The platform-to-platform exchange may be within a single WSF-based simulation, or with an externally simulated entity across a DIS interface. A DIS interface does not specify a rate of transfer, so the fidelity of these exchanges may degrade a bit.
+
+## Type: WSF_MOVE_PLAN_PROCESSOR
+
+**Derives From:** `WSF_SCRIPT_PROCESSOR`
+
+### Overview
+
+`WSF_MOVE_PLAN_PROCESSOR` is defined in `wsf.ag` as a predefined subtype of `WSF_SCRIPT_PROCESSOR`.
+
+The grammar does not add extra block structure beyond the inherited script processor commands, so its reference footprint is currently the inherited `WSF_SCRIPT_PROCESSOR` command set.
+
+### Syntax
+
+```wsf
+processor <name> WSF_MOVE_PLAN_PROCESSOR
+   ... WSF_SCRIPT_PROCESSOR Commands ...
+end_processor
+```
 
 There are several sub-classes the user will need to understand to accomplish Exchange functionality:
 
@@ -1197,6 +1233,64 @@ end_state
 ### Script Interface
 
 `WSF_STATE_MACHINE` utilizes the capabilities of the Common_Script_Interface and `WSF_SCRIPT_PROCESSOR`.
+
+## Type: WSF_TASK_PROCESSOR
+
+**Derives From:** `WSF_SCRIPT_PROCESSOR`
+
+### Overview
+
+`WSF_TASK_PROCESSOR` is defined in `wsf.ag` as a subtype of `WSF_SCRIPT_PROCESSOR` with task- and track-oriented predefined script variables.
+
+The grammar adds explicit task-processor commands for communication retry behavior, operating/autonomy levels, track processor association, recognition delay, and track update interval.
+
+### Syntax
+
+```wsf
+processor <name> WSF_TASK_PROCESSOR
+   ... WSF_SCRIPT_PROCESSOR Commands ...
+
+   comm_retry_attempts <integer>
+   comm_retry_interval <time-value>
+   operating_level <string> <real>
+   autonomy_level <string> <real>
+   track_processor <processor-name>
+   time_to_recognize_messages <random-time-reference>
+   track_update_interval <time-value>
+end_processor
+```
+
+### Commands
+
+#### comm_retry_attempts
+
+**Syntax:** `comm_retry_attempts <integer>`
+
+#### comm_retry_interval
+
+**Syntax:** `comm_retry_interval <time-value>`
+
+#### operating_level
+
+**Syntax:** `operating_level <string> <real>`
+
+#### autonomy_level
+
+**Syntax:** `autonomy_level <string> <real>`
+
+#### track_processor
+
+**Syntax:** `track_processor <processor-name>`
+
+Associates the task processor with another processor via a processor typeref in the grammar.
+
+#### time_to_recognize_messages
+
+**Syntax:** `time_to_recognize_messages <random-time-reference>`
+
+#### track_update_interval
+
+**Syntax:** `track_update_interval <time-value>`
 
 ## Type: WSF_TRACK_STATE_CONTROLLER
 

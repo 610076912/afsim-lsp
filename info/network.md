@@ -206,6 +206,45 @@ Members of this network may be specified by identifying a comm object by its own
 
 Members of this network may be specified by identifying a comm object by its address. Each entry in this list is prefixed by the "member" command. This list is only available to comm objects that have specified addresses in input, as comms without specified addresses will be dynamically allocated at runtime.
 
+## Type: WSF_COMM_NETWORK_MESH_LEGACY
+
+**Script Class:** `WsfNetworkMesh`
+
+### Overview
+
+`WSF_COMM_NETWORK_MESH_LEGACY` provides a generic network that enforces a mesh topology. Only members are specified in this network, and all members have bi-directional communications links with all other members.
+
+This legacy mesh type is still present in `wsf.ag` and has its own documentation page, so it should be treated as a supported predefined network type when building reference data.
+
+### Syntax
+
+```wsf
+network <name> WSF_COMM_NETWORK_MESH_LEGACY
+   ... network Commands ...
+
+   comm_list
+      member <string-value> <string-value>
+      ...
+   end_comm_list
+
+   address_list
+      member <address-value>
+      ...
+   end_address_list
+
+end_network
+```
+
+### Commands
+
+#### comm_list ... end_comm_list
+
+Members of this network may be specified by identifying a comm object by its owning platform name and the name of the comm. Each entry in this list is prefixed by the "member" command.
+
+#### address_list ... end_address_list
+
+Members of this network may be specified by identifying a comm object by its address. Each entry in this list is prefixed by the "member" command. This list is only available to comm objects that have specified addresses in input, as comms without specified addresses will be dynamically allocated at runtime.
+
 ## Type: WSF_COMM_NETWORK_P2P
 
 **Script Class:** `WsfNetworkP2P`

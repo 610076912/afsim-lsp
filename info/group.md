@@ -27,4 +27,6 @@ The base type `WsfGroup` has only auxiliary data.
 
 ### aux_data
 
-Defines auxiliary data for a platform. See `aux_data`.
+**Syntax:** `aux_data <aux-data> ... end_aux_data`
+
+Defines auxiliary data for a group. See `aux_data`.
